@@ -1,3 +1,22 @@
+/*
+ 		Copyright (C) 2010 Wouter van Kleunen
+
+		This file is part of JsonDb.
+
+    Foobar is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Lesser General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Foobar is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public License
+    along with JsonDb.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 #include "JsonDb.h"
 
 #include <boost/enable_shared_from_this.hpp>
@@ -740,23 +759,27 @@ ValuePointer JsonDb::Get(TransactionHandle &transaction, std::string const &path
 			if(name[name.size() - 1] != ']')
 				throw std::runtime_error((boost::format("Invalid path specified: %s") % path).str());
 			
+			std::string element_name_str = name.substr(0, index_start_pos);
+
+			std::string element_index_str = name.substr(index_start_pos + 1, name.size() - 2 - index_start_pos);
+
 			size_t index;
 			try 
 			{
-				index = boost::lexical_cast<size_t>(name.substr(index_start_pos + 1, name.size() - 2 - index_start_pos));
+				index = boost::lexical_cast<size_t>(element_index_str);
 			} catch(boost::bad_lexical_cast &e)
 			{
 				throw std::runtime_error((boost::format("Invalid path specified: %s") % path).str());
 			}
 
-			element = element->Get(transaction, current_path, name.substr(0, index_start_pos), not_exists_resolution);
-			current_path += (i != tokens.begin() ? "." : "") + name.substr(0, index_start_pos);
+			element = element->Get(transaction, current_path, element_name_str, not_exists_resolution);
+			current_path += (i != tokens.begin() ? "." : "") + element_name_str;
 
 			if(element == NULL)
 				return element;
 
 			element = element->Get(transaction, current_path, index);
-			current_path += (boost::format("[%d]") % index).str();
+			current_path += element_index_str;
 		} else
 		{
 			element = element->Get(transaction, path, name, not_exists_resolution);
