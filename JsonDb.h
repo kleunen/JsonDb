@@ -140,7 +140,7 @@ public:
 	void SetArray(TransactionHandle &transaction, std::string const &path, size_t elements, bool create_if_not_exists = true);
 
 	// Read values from the database
-	std::string const &GetString(TransactionHandle &transaction, std::string const &path);
+	std::string GetString(TransactionHandle &transaction, std::string const &path);
 	int GetInt(TransactionHandle &transaction, std::string const &path);
 	bool GetBool(TransactionHandle &transaction, std::string const &path);
 	float GetFloat(TransactionHandle &transaction, std::string const &path);
@@ -163,7 +163,7 @@ public:
 private:
 
 	// Get raw element pointer from database
-	ValuePointer Get(TransactionHandle &transaction, std::string const &path, NotExistsResolution not_exists_resolution);
+	std::pair<ValuePointer, ValuePointer> Get(TransactionHandle &transaction, std::string const &path, NotExistsResolution not_exists_resolution);
 
 	// Set raw element 
 	void Set(TransactionHandle &transaction, std::string const &path, ValuePointer new_value, bool create_if_not_exists);

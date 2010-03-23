@@ -97,7 +97,7 @@ public:
 	}
 
 	// Return as string
-	virtual std::string const &GetValueString() const 
+	virtual std::string GetValueString() const 
 	{
 		throw std::runtime_error((boost::format("Failed to convert object to string, item is of type '%s'") % GetTypeString()).str().c_str());
 	}	
@@ -111,7 +111,7 @@ public:
 	// Get entry with the specified path from element at the specified index
 	virtual ValuePointer Get(JsonDb::TransactionHandle &transaction, std::string const &complete_path, size_t index) 
 	{
-		throw std::runtime_error((boost::format("Failed to get element by index from object '%s', item is of type '%s'") % complete_path % GetTypeString()).str());
+		throw std::runtime_error((boost::format("Failed to get element by index from object '%s', item is of type '%s'") % complete_path % GetTypeString()).str().c_str());
 	}
 
 	// Print to a stream
@@ -304,7 +304,7 @@ public:
 	void Print(JsonDb::TransactionHandle &transaction, std::ostream &output, unsigned int indent_level) const;
 
 	// Allow reading as string
-	std::string const &GetValueString() const
+	std::string GetValueString() const
 	{
 		return value;
 	}
@@ -701,9 +701,9 @@ JsonDb::JsonDb(std::string const &_filename)
 
 void JsonDb::Set(TransactionHandle &transaction, std::string const &path, ValuePointer new_value, bool create_if_not_exists)
 {
-	ValuePointer old_value = Get(transaction, path, create_if_not_exists ? create : throw_exception);
-	Delete(transaction, old_value);
-	new_value->SetKey(old_value->GetKey());
+	std::pair<ValuePointer, ValuePointer> old_value = Get(transaction, path, create_if_not_exists ? create : throw_exception);
+	Delete(transaction, old_value.second);
+	new_value->SetKey(old_value.second->GetKey());
 	transaction->Store(new_value->GetKey(), new_value);
 }
 
@@ -740,10 +740,14 @@ void JsonDb::SetArray(TransactionHandle &transaction, std::string const &path, s
 	Set(transaction, path, ValuePointer(new ValueArray(null_key, elements)), create_if_not_exists);
 }
 
-ValuePointer JsonDb::Get(TransactionHandle &transaction, std::string const &path, NotExistsResolution not_exists_resolution)
+std::pair<ValuePointer, ValuePointer> JsonDb::Get(TransactionHandle &transaction, std::string const &path, NotExistsResolution not_exists_resolution)
 {
+	ValuePointer parent = transaction->GetRoot();
 	ValuePointer element = transaction->GetRoot();
 	std::string current_path;
+
+	if(path.empty())
+			throw std::runtime_error((boost::format("Invalid path specified: %s, path should not be empty") % path).str());
 
 	boost::tokenizer< boost::char_separator<char> > tokens(path,  boost::char_separator<char>("."));
 	for(boost::tokenizer< boost::char_separator<char> >::iterator i = tokens.begin(); i != tokens.end(); ++i)
@@ -751,71 +755,84 @@ ValuePointer JsonDb::Get(TransactionHandle &transaction, std::string const &path
 		if(i->empty())
 			throw std::runtime_error((boost::format("Invalid path specified: %s") % path).str());
 
-		std::string name = *i;
+		std::string const &name = *i;
 
-		size_t index_start_pos = i->find('[');
+		size_t index_start_pos = name.find('[');
 		if(index_start_pos != std::string::npos)
 		{
-			if(name[name.size() - 1] != ']')
-				throw std::runtime_error((boost::format("Invalid path specified: %s") % path).str());
-			
 			std::string element_name_str = name.substr(0, index_start_pos);
 
-			std::string element_index_str = name.substr(index_start_pos + 1, name.size() - 2 - index_start_pos);
-
-			size_t index;
-			try 
-			{
-				index = boost::lexical_cast<size_t>(element_index_str);
-			} catch(boost::bad_lexical_cast &e)
-			{
-				throw std::runtime_error((boost::format("Invalid path specified: %s") % path).str());
-			}
-
+			parent = element;
 			element = element->Get(transaction, current_path, element_name_str, not_exists_resolution);
 			current_path += (i != tokens.begin() ? "." : "") + element_name_str;
 
 			if(element == NULL)
-				return element;
+				return std::make_pair<ValuePointer, ValuePointer>(parent, element);
 
-			element = element->Get(transaction, current_path, index);
-			current_path += element_index_str;
+			while(true)
+			{
+				size_t index_end_pos = name.find(']', index_start_pos);
+				if(index_end_pos == std::string::npos)
+					throw std::runtime_error((boost::format("Invalid path specified: %s") % path).str());
+				std::string element_index_str = name.substr(index_start_pos + 1, index_end_pos - 1 - index_start_pos);
+
+				size_t index;
+				try 
+				{
+					index = boost::lexical_cast<size_t>(element_index_str);
+				} catch(boost::bad_lexical_cast &e)
+				{
+					throw std::runtime_error((boost::format("Invalid path specified: %s") % path).str());
+				}
+
+				parent = element;
+				element = element->Get(transaction, current_path, index);
+				current_path += element_index_str;
+
+				index_start_pos = index_end_pos + 1;
+				if(index_start_pos == name.size())
+					break;
+				if(name[index_start_pos] != '[')
+					throw std::runtime_error((boost::format("Invalid path specified: %s") % path).str());
+			}
+
 		} else
 		{
+			parent = element;
 			element = element->Get(transaction, path, name, not_exists_resolution);
 			current_path += (i != tokens.begin() ? "." : "") + name;
 
 			if(element == NULL)
-				return element;
+				return std::make_pair<ValuePointer, ValuePointer>(parent, element);
 		}
 	}
 	
-	return element;
+	return std::make_pair<ValuePointer, ValuePointer>(parent, element);
 }
 
 int JsonDb::GetInt(TransactionHandle &transaction, std::string const &path)
 {
-	return Get(transaction, path, throw_exception)->GetValueInt();
+	return Get(transaction, path, throw_exception).second->GetValueInt();
 }
 
-std::string const &JsonDb::GetString(TransactionHandle &transaction, std::string const &path)
+std::string JsonDb::GetString(TransactionHandle &transaction, std::string const &path)
 {
-	return Get(transaction, path, throw_exception)->GetValueString();
+	return Get(transaction, path, throw_exception).second->GetValueString();
 }
 
 bool JsonDb::GetBool(TransactionHandle &transaction, std::string const &path)
 {
-	return Get(transaction, path, throw_exception)->GetValueBoolean();
+	return Get(transaction, path, throw_exception).second->GetValueBoolean();
 }
 
 float JsonDb::GetFloat(TransactionHandle &transaction, std::string const &path)
 {
-	return Get(transaction, path, throw_exception)->GetValueFloat();
+	return Get(transaction, path, throw_exception).second->GetValueFloat();
 }
 
 bool JsonDb::Exists(TransactionHandle &transaction, std::string const &path) 
 {
-	return Get(transaction, path, return_null) != NULL;
+	return Get(transaction, path, return_null).second != NULL;
 }
 
 void JsonDb::Delete(TransactionHandle &transaction, ValuePointer value)
@@ -826,12 +843,12 @@ void JsonDb::Delete(TransactionHandle &transaction, ValuePointer value)
 
 void JsonDb::Delete(TransactionHandle &transaction, std::string const &path)
 {
-//	Delete(transaction, Get(transaction, path, return_null));
+	std::pair<ValuePointer, ValuePointer> element = Get(transaction, path, return_null);
+	//element->first->Delete(transaction, element->second->GetKey());
 }
 
 void JsonDb::Print(TransactionHandle &transaction, std::ostream &output)
 {
-	output << "root:";
 	transaction->GetRoot()->Print(transaction, output, 1);
 }
 
