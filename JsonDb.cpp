@@ -539,11 +539,11 @@ void ValueObject::Delete(JsonDb::TransactionHandle &transaction, ValuePointer co
 	{
 		if(i->second == element->GetKey())
 		{
-			// Remote element from list
-			values.erase(i);
-			
 			// Delete the element
-			transaction->Delete(i->second);
+			transaction->Retrieve(i->second)->Delete(transaction);
+
+			// Remove element from list
+			values.erase(i);
 
 			// Store the current element
 			transaction->Store(GetKey(), shared_from_this());
@@ -940,7 +940,8 @@ bool JsonDb::Validate(TransactionHandle &transaction)
 	std::set<ValueKey> db_keys = transaction->Walk();
 
 	// Item storing next id is a valid item
-	tree_keys.insert(next_id_key);
+	if(db_keys.find(next_id_key) != db_keys.end())
+		tree_keys.insert(next_id_key);
 
 	std::set<ValueKey> db_missing_keys;
 	std::set_difference(

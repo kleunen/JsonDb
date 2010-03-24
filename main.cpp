@@ -129,10 +129,24 @@ void JsonDb_ValidateDatabase()
 	std::cout << output.str() << std::endl;
 }
 
+void JsonDb_EmptyDatabase()
+{
+	JsonDb json_db("test.db");
+	JsonDb::TransactionHandle transaction = json_db.StartTransaction();
+	json_db.Delete(transaction, "this");
+
+	BOOST_CHECK(json_db.Exists(transaction, "this.is.a.deep.test") == false);
+	BOOST_CHECK(json_db.Exists(transaction, "this") == false);
+
+	// Validate the integrity of the database
+	BOOST_CHECK(json_db.Validate(transaction) == true);
+}
+
 void JsonDb_Test()
 {
 	JsonDb_CreateDatabase();
 	JsonDb_ValidateDatabase();
+	JsonDb_EmptyDatabase();
 }
 
 boost::unit_test::test_suite *init_unit_test_suite(int argc, char **argv) 
