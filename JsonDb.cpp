@@ -129,6 +129,12 @@ public:
 		transaction->Delete(GetKey());
 	}
 
+	// Delete subelement element
+	virtual void Delete(JsonDb::TransactionHandle &transaction, ValuePointer const &element)
+	{
+		throw std::runtime_error((boost::format("Failed to delement subelement from object, item is of type '%s'") % GetTypeString()).str().c_str());
+	}
+
 	// Unserialize from a stream
 	static ValuePointer Unserialize(ValueKey key, std::istream &input);
 };
@@ -427,6 +433,9 @@ public:
 	// Delete this element and all subelements
 	void Delete(JsonDb::TransactionHandle &transaction);
 
+	// Delete a element from this object
+	void Delete(JsonDb::TransactionHandle &transaction, ValuePointer const &element);
+
 	char const *GetTypeString() const
 	{
 		return "Object";
@@ -503,6 +512,28 @@ void ValueObject::Delete(JsonDb::TransactionHandle &transaction)
 	// Delete all sub elements
 	for(Type::const_iterator i = values.begin(); i != values.end(); ++i)
 		transaction->Delete(i->second);
+}
+
+void ValueObject::Delete(JsonDb::TransactionHandle &transaction, ValuePointer const &element)
+{
+	// Delete all sub elements
+	for(Type::iterator i = values.begin(); i != values.end(); ++i)
+	{
+		if(i->second == element->GetKey())
+		{
+			// Remote element from list
+			values.erase(i);
+			
+			// Delete the element
+			transaction->Delete(i->second);
+
+			// Store the current element
+			transaction->Store(GetKey(), shared_from_this());
+
+			// Done
+			return;
+		}
+	}
 }
 
 ValuePointer Value::Unserialize(ValueKey key, std::istream &input) 
@@ -702,8 +733,8 @@ JsonDb::JsonDb(std::string const &_filename)
 void JsonDb::Set(TransactionHandle &transaction, std::string const &path, ValuePointer new_value, bool create_if_not_exists)
 {
 	std::pair<ValuePointer, ValuePointer> old_value = Get(transaction, path, create_if_not_exists ? create : throw_exception);
-	Delete(transaction, old_value.second);
 	new_value->SetKey(old_value.second->GetKey());
+	old_value.second->Delete(transaction);
 	transaction->Store(new_value->GetKey(), new_value);
 }
 
@@ -844,7 +875,7 @@ void JsonDb::Delete(TransactionHandle &transaction, ValuePointer value)
 void JsonDb::Delete(TransactionHandle &transaction, std::string const &path)
 {
 	std::pair<ValuePointer, ValuePointer> element = Get(transaction, path, return_null);
-	//element->first->Delete(transaction, element->second->GetKey());
+	element.first->Delete(transaction, element.second);
 }
 
 void JsonDb::Print(TransactionHandle &transaction, std::ostream &output)

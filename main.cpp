@@ -85,10 +85,17 @@ void JsonDb_CreateDatabase()
 		for(int j = 0; j < i; ++j)
 			json_db.Set(transaction, (boost::format("this.is.a.deep.test.path.multilevel_array_value[%d][%d]") % i % j).str(), i * j);
 	
+	// Check exists
 	BOOST_CHECK(json_db.Exists(transaction, "this.is.a.deep.test.path") == true);
 	BOOST_CHECK(json_db.Exists(transaction, "this.is.a.deep.test.path.array_value[0]") == true);
 	BOOST_CHECK(json_db.Exists(transaction, "this.is.a.deep.test.path.array_value") == true);
 	BOOST_CHECK(json_db.Exists(transaction, "this.is.a.deep.test.blaat") == false);
+
+	// Test delete
+	json_db.Set(transaction, "this.is.a.deep.test.path.delete_value", 1);
+	BOOST_CHECK(json_db.Exists(transaction, "this.is.a.deep.test.path.delete_value") == true);
+	json_db.Delete(transaction, "this.is.a.deep.test.path.delete_value");
+	BOOST_CHECK(json_db.Exists(transaction, "this.is.a.deep.test.path.delete_value") == false);
 }
 
 void JsonDb_ValidateDatabase()
