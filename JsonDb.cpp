@@ -137,6 +137,12 @@ public:
 
 	// Unserialize from a stream
 	static ValuePointer Unserialize(ValueKey key, std::istream &input);
+
+	// Walk through the database and retrieve all keys
+	virtual void Walk(JsonDb::TransactionHandle &transaction, std::set<ValueKey> &keys)
+	{
+		keys.insert(GetKey());
+	}
 };
 
 // The null element
@@ -364,6 +370,9 @@ public:
 		return "Array";
 	}
 
+	// Walk through the database and retrieve all keys
+	void Walk(JsonDb::TransactionHandle &transaction, std::set<ValueKey> &keys);
+
 private:
 	Type values;
 };
@@ -408,7 +417,14 @@ void ValueArray::Delete(JsonDb::TransactionHandle &transaction)
 
 	// Delete all sub elements
 	for(Type::const_iterator i = values.begin(); i != values.end(); ++i)
-		transaction->Delete(*i);
+		transaction->Retrieve(*i)->Delete(transaction);
+}
+
+void ValueArray::Walk(JsonDb::TransactionHandle &transaction, std::set<ValueKey> &keys)
+{
+	keys.insert(GetKey());
+	for(Type::const_iterator i = values.begin(); i != values.end(); ++i)
+	 	transaction->Retrieve(*i)->Walk(transaction, keys);
 }
 
 class ValueObject
@@ -435,6 +451,8 @@ public:
 
 	// Delete a element from this object
 	void Delete(JsonDb::TransactionHandle &transaction, ValuePointer const &element);
+
+	void Walk(JsonDb::TransactionHandle &transaction, std::set<ValueKey> &keys);
 
 	char const *GetTypeString() const
 	{
@@ -511,7 +529,7 @@ void ValueObject::Delete(JsonDb::TransactionHandle &transaction)
 
 	// Delete all sub elements
 	for(Type::const_iterator i = values.begin(); i != values.end(); ++i)
-		transaction->Delete(i->second);
+		transaction->Retrieve(i->second)->Delete(transaction);
 }
 
 void ValueObject::Delete(JsonDb::TransactionHandle &transaction, ValuePointer const &element)
@@ -534,6 +552,13 @@ void ValueObject::Delete(JsonDb::TransactionHandle &transaction, ValuePointer co
 			return;
 		}
 	}
+}
+
+void ValueObject::Walk(JsonDb::TransactionHandle &transaction, std::set<ValueKey> &keys)
+{
+	keys.insert(GetKey());
+	for(Type::const_iterator i = values.begin(); i != values.end(); ++i)
+	 	transaction->Retrieve(i->second)->Walk(transaction, keys);
 }
 
 ValuePointer Value::Unserialize(ValueKey key, std::istream &input) 
@@ -724,6 +749,24 @@ void JsonDb::Transaction::Commit()
 	start_next_id = next_id;
 }
 
+std::set<ValueKey> JsonDb::Transaction::Walk()
+{
+	std::set<ValueKey> keys;
+
+ 	// initialize the iterator 
+  if(!vlcurfirst(db.get()))
+		throw std::runtime_error("Failed to initialize database iterator");
+
+	CharPtr key;
+	while((key = CharPtr(vlcurkey(db.get(), NULL))) != NULL)
+	{
+		keys.insert(*(ValueKey const *)key.get());
+		vlcurnext(db.get());
+	}
+
+	return keys;
+}
+
 JsonDb::JsonDb(std::string const &_filename)
 	: filename(_filename)
 { 
@@ -881,5 +924,66 @@ void JsonDb::Delete(TransactionHandle &transaction, std::string const &path)
 void JsonDb::Print(TransactionHandle &transaction, std::ostream &output)
 {
 	transaction->GetRoot()->Print(transaction, output, 1);
+}
+
+std::set<ValueKey> JsonDb::WalkTree(TransactionHandle &transaction)
+{
+	std::set<ValueKey> result;
+	result.insert(transaction->GetRoot()->GetKey());
+	transaction->GetRoot()->Walk(transaction, result);
+	return result;
+}
+
+bool JsonDb::Validate(TransactionHandle &transaction)
+{
+	std::set<ValueKey> tree_keys = WalkTree(transaction);
+	std::set<ValueKey> db_keys = transaction->Walk();
+
+	// Item storing next id is a valid item
+	tree_keys.insert(next_id_key);
+
+	std::set<ValueKey> db_missing_keys;
+	std::set_difference(
+			tree_keys.begin(), tree_keys.end(),
+			db_keys.begin(), db_keys.end(),
+			std::inserter(db_missing_keys, db_missing_keys.begin()));
+
+	std::set<ValueKey> db_stale_keys;
+	std::set_difference(
+			db_keys.begin(), db_keys.end(),
+			tree_keys.begin(), tree_keys.end(),
+			std::inserter(db_stale_keys, db_stale_keys.begin()));
+
+	std::cout << "Keys found in tree: " << std::endl;
+	for(std::set<ValueKey>::const_iterator i = tree_keys.begin(); i != tree_keys.end(); ++i)
+		std::cout << (i != tree_keys.begin() ? ", " : "") << *i;
+	std::cout << std::endl;
+
+	std::cout << "Keys found in database: " << std::endl;
+	for(std::set<ValueKey>::const_iterator i = db_keys.begin(); i != db_keys.end(); ++i)
+		std::cout << (i != db_keys.begin() ? ", " : "") << *i;
+	std::cout << std::endl;
+
+	if(!db_missing_keys.empty())
+	{
+		std::cout << "Following keys are missing from the database: " << std::endl;
+
+		for(std::set<ValueKey>::const_iterator i = db_missing_keys.begin(); i != db_missing_keys.end(); ++i)
+			std::cout << (i != db_missing_keys.begin() ? ", " : "") << *i;
+
+		std::cout << std::endl;
+	}
+
+	if(!db_stale_keys.empty())
+	{
+		std::cout << "Following stale keys where found in the database: " << std::endl;
+
+		for(std::set<ValueKey>::const_iterator i = db_stale_keys.begin(); i != db_stale_keys.end(); ++i)
+			std::cout << (i != db_stale_keys.begin() ? ", " : "") << *i;
+
+		std::cout << std::endl;
+	}
+
+	return (db_missing_keys.empty() && db_stale_keys.empty());
 }
 

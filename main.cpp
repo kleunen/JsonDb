@@ -96,6 +96,9 @@ void JsonDb_CreateDatabase()
 	BOOST_CHECK(json_db.Exists(transaction, "this.is.a.deep.test.path.delete_value") == true);
 	json_db.Delete(transaction, "this.is.a.deep.test.path.delete_value");
 	BOOST_CHECK(json_db.Exists(transaction, "this.is.a.deep.test.path.delete_value") == false);
+
+	// Validate the integrity of the database
+	BOOST_CHECK(json_db.Validate(transaction) == true);
 }
 
 void JsonDb_ValidateDatabase()

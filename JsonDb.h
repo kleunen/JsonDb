@@ -29,6 +29,7 @@
 #include <vista.h>
 
 #include <map>
+#include <set>
 
 class Value;
 
@@ -107,6 +108,9 @@ public:
 			return TransactionHandle(new Transaction(filename, null_element));
 		}
 
+		// Return a list of all keys stored in the database
+		std::set<ValueKey> Walk();
+
 	private:
 
 		// Id of next item to store in the database
@@ -160,7 +164,12 @@ public:
 		return Transaction::StartTransaction(filename, null_element);
 	}
 
+	// Validate the integrity of the database
+	bool Validate(TransactionHandle &transaction);
+
 private:
+	// Get all id's stored in the database tree
+	std::set<ValueKey> WalkTree(TransactionHandle &transaction);
 
 	// Get raw element pointer from database
 	std::pair<ValuePointer, ValuePointer> Get(TransactionHandle &transaction, std::string const &path, NotExistsResolution not_exists_resolution);
