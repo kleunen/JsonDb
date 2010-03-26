@@ -140,6 +140,13 @@ public:
 	void Set(TransactionHandle &transaction, std::string const &path, float value, bool create_if_not_exists = true);
 	void Set(TransactionHandle &transaction, std::string const &path, bool value, bool create_if_not_exists = true);
 
+	void SetJson(TransactionHandle &transaction, std::string const &path, std::string const &value, bool create_if_not_exists = true);
+	void SetJson(TransactionHandle &transaction, std::string const &path, char const *value, bool create_if_not_exists = true)
+	{
+		std::string value_str(value);
+		SetJson(transaction, path, value_str, create_if_not_exists);
+	}
+
 	// Create an array with the specified number of elements at the path
 	void SetArray(TransactionHandle &transaction, std::string const &path, size_t elements, bool create_if_not_exists = true);
 
@@ -166,6 +173,9 @@ public:
 
 	// Validate the integrity of the database
 	bool Validate(TransactionHandle &transaction);
+
+	// Delete the complete database
+	void Delete();
 
 private:
 	// Get all id's stored in the database tree
