@@ -19,7 +19,7 @@
 
 #include "JsonDb.h"
 #include "JsonDbValues.h"
-#include "JsonParser.h"
+#include "JsonDbParser.h"
 
 #include <boost/format.hpp>
 #include <boost/lexical_cast.hpp>

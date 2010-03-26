@@ -8,12 +8,13 @@ find_package( Boost COMPONENTS filesystem unit_test_framework)
 link_directories ( ${Boost_LIBRARY_DIRS} )
 include_directories ( ${Boost_INCLUDE_DIRS} )
 
-add_library(JsonDb JsonDb.cpp JsonDbValues.cpp JsonParser.cpp)
-add_executable(JsonDb_unit_test main.cpp JsonDb.cpp JsonDbValues.cpp JsonParser.cpp)
+add_library(JsonDb JsonDb.cpp JsonDbValues.cpp JsonDbParser.cpp)
+add_executable(JsonDb_unit_test main.cpp)
 
 target_link_libraries (
 		JsonDb_unit_test
 		${Boost_LIBRARIES}
 		"qdbm"
+		"JsonDb"
 	)
 

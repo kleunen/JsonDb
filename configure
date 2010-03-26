@@ -1,2 +1,2 @@
 #!/bin/sh
-make configure
+@make --silent configure

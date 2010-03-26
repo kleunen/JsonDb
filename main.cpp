@@ -141,19 +141,7 @@ void JsonDb_EmptyDatabase(JsonDb &json_db)
 	BOOST_CHECK(json_db.Validate(transaction) == true);
 }
 
-void JsonDb_Test()
-{
-	JsonDb json_db("test.db");
-
-	JsonDb_CreateDatabase(json_db);
-	JsonDb_ValidateDatabase(json_db);
-	JsonDb_EmptyDatabase(json_db);
-
-	// Delete the complete database
-	json_db.Delete();
-}
-
-void JsonDb_ParserTest()
+void JsonDb_ParserTest(JsonDb &json_db)
 {
 	char const *json_value = 
 		"{"
@@ -164,11 +152,11 @@ void JsonDb_ParserTest()
 		"		'bool_true_value' : true,"
 		" 	'bool_false_value' : false,"
 		"		'null_value' : null,"
-		"		'array_value' : [10, 'test', false],"
-		"		'sub_object' : { 'a' : 10, 'b' : 'test', 'c' : false }"
+		"		'sub_object' : { 'a' : 10, 'b' : 'test', 'c' : false },"
+		"		'deep_object' : { 'a': { 'd' : 30, 'e' : '40' }, 'b' : 'test', 'c' : false },"
+		"		'array_value' : [ 10, 'test', false ]"
 		"}";
 
-	JsonDb json_db("test.db");
 	JsonDb::TransactionHandle transaction = json_db.StartTransaction();
 
 	json_db.SetJson(transaction, "json_test", json_value);
@@ -184,16 +172,31 @@ void JsonDb_ParserTest()
 	BOOST_CHECK(json_db.GetInt(transaction, "json_test.sub_object.a") == 10);
 	BOOST_CHECK(json_db.GetString(transaction, "json_test.sub_object.b") == "test");
 	BOOST_CHECK(json_db.GetBool(transaction, "json_test.sub_object.c") == false);
+	BOOST_CHECK(json_db.GetInt(transaction, "json_test.deep_object.a.d") == 30);
+	BOOST_CHECK(json_db.GetString(transaction, "json_test.deep_object.a.e") == "40");
 
 	json_db.Print(transaction, std::cout);
 	std::cout << std::endl;
 }
 
+void JsonDb_Test()
+{
+	JsonDb json_db("test.db");
+
+	JsonDb_CreateDatabase(json_db);
+	JsonDb_ValidateDatabase(json_db);
+	JsonDb_EmptyDatabase(json_db);
+	JsonDb_ParserTest(json_db);
+
+	// Delete the complete database
+	json_db.Delete();
+}
+
+
 boost::unit_test::test_suite *init_unit_test_suite(int argc, char **argv) 
 {
 	boost::unit_test::test_suite *test(BOOST_TEST_SUITE("JsonDb unit test"));
 	test->add(BOOST_TEST_CASE(&JsonDb_Test));
-	test->add(BOOST_TEST_CASE(&JsonDb_ParserTest));
 	return test; 
 }
 

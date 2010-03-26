@@ -1,1 +1,17 @@
-JsonDb is a json database
+JsonDb is a json database. It allows persistent storage of json in a database. To build JsonDb, the following packages are required:
+
+- GNU Make
+- GNU GCC
+- Boost
+- QDBM
+- CMake
+
+To build the json database, do the following:
+./configure
+make
+
+To run the unit test, do the following:
+make run_unit_test
+
+
+Wouter van Kleunen <wouter.van@kleunen.nl>
