@@ -1,9 +1,21 @@
+BUILD_DIR := build
+BUILD_DIR_FILE := $(BUILD_DIR)/.empty
 
-all: jsondb.exe
+default: all
 
-jsondb.exe: JsonDb.cpp main.cpp
-	g++ -g -Wall -o jsondb.exe JsonDb.cpp main.cpp  -I /usr/include/boost-1_33_1/ -lqdbm -lboost_unit_test_framework-gcc-mt
+$(BUILD_DIR_FILE):
+	mkdir -p $(BUILD_DIR)
+	cd $(BUILD_DIR) && cmake ..
+	touch $(BUILD_DIR_FILE)
 
-	# g++ -fprofile-arcs -ftest-coverage -g -Wall -o jsondb.exe JsonDb.cpp main.cpp  -I /usr/include/boost-1_33_1/ -lqdbm -lboost_unit_test_framework-gcc-mt
+configure: $(BUILD_DIR_FILE)
+	
+all: $(BUILD_DIR_FILE)
+	make -C $(BUILD_DIR)
+
+run_unit_test: all
+	$(BUILD_DIR)/JsonDb_unit_test
+
 clean:
-	rm jsondb.exe
+	rm -rf $(BUILD_DIR)
+
