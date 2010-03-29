@@ -41,7 +41,7 @@ public:
 	enum ValueTypeId
 	{
 		VALUE_NUMBER_INTEGER	=	0x10,
-		VALUE_NUMBER_FLOAT		= 0x20,
+		VALUE_NUMBER_REAL			= 0x20,
 		VALUE_NUMBER_BOOL			= 0x30,
 		VALUE_STRING					= 0x40,
 		VALUE_ARRAY						=	0x50,
@@ -74,10 +74,10 @@ public:
 		throw std::runtime_error((boost::format("Failed to convert object to integer, item is of type '%s'") % GetTypeString()).str().c_str());
 	}
 
-	// Return as float
-	virtual float GetValueFloat() const 
+	// Return as real 
+	virtual double GetValueReal() const 
 	{
-		throw std::runtime_error((boost::format("Failed to convert object to float, item is of type '%s'") % GetTypeString()).str().c_str());
+		throw std::runtime_error((boost::format("Failed to convert object to real, item is of type '%s'") % GetTypeString()).str().c_str());
 	}
 
 	// Return as boolean
@@ -201,15 +201,15 @@ private:
 	Type value;
 };
 
-// Floating pointer number
-class ValueNumberFloat
+// Real pointer number
+class ValueNumberReal
 	: public Value
 {
 
 public:
-	typedef float Type;
+	typedef double Type;
 
-	ValueNumberFloat(ValueKey key, Type _value = 0.0f)
+	ValueNumberReal(ValueKey key, Type _value = 0.0f)
 		: Value(key)
 		, value(_value)
 	{ }
@@ -217,20 +217,20 @@ public:
 	void Serialize(std::ostream &output) const;
 	void Print(JsonDb::TransactionHandle &transaction, std::ostream &output, unsigned int indent_level) const;
 
-	// Allow reading as float
-	float GetValueFloat() const
+	// Allow reading as real
+	double GetValueReal() const
 	{
 		return value;
 	}
 
 	char const *GetTypeString() const
 	{
-		return "Float";
+		return "Real";
 	}
 
 	ValueTypeId GetType() const 
 	{
-	 	return VALUE_NUMBER_FLOAT;
+	 	return VALUE_NUMBER_REAL;
 	}
 private:
 	Type value;

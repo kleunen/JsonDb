@@ -45,14 +45,14 @@ void ValueNumberInteger::Print(JsonDb::TransactionHandle &transaction, std::ostr
 }
 
 
-void ValueNumberFloat::Serialize(std::ostream &output) const
+void ValueNumberReal::Serialize(std::ostream &output) const
 {
-	unsigned char type = VALUE_NUMBER_FLOAT;	
+	unsigned char type = VALUE_NUMBER_REAL;	
 	output.write((char *)&type, sizeof(unsigned char));
 	output.write((char *)&value, sizeof(Type));
 }
 
-void ValueNumberFloat::Print(JsonDb::TransactionHandle &transaction, std::ostream &output, unsigned int indent_level) const
+void ValueNumberReal::Print(JsonDb::TransactionHandle &transaction, std::ostream &output, unsigned int indent_level) const
 {
 	output << (boost::format("%.1f") % value);
 }
@@ -254,11 +254,11 @@ ValuePointer Value::Unserialize(ValueKey key, std::istream &input)
 			return ValuePointer(new ValueNumberInteger(key, value));
 		}
 
-		case Value::VALUE_NUMBER_FLOAT:
+		case Value::VALUE_NUMBER_REAL:
 		{
-			ValueNumberFloat::Type value;
+			ValueNumberReal::Type value;
 			input.read((char *)&value, sizeof(value));
-			return ValuePointer(new ValueNumberFloat(key, value));
+			return ValuePointer(new ValueNumberReal(key, value));
 		}
 
 		case Value::VALUE_NUMBER_BOOL:

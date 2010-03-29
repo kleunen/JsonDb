@@ -23,13 +23,14 @@
 
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
-#include <boost/spirit/core.hpp>
-#include <boost/spirit/utility/confix.hpp>
-#include <boost/spirit/utility/escape_char.hpp>
-#include <boost/spirit/utility/lists.hpp>
+#include <boost/spirit/include/classic_core.hpp>
+#include <boost/spirit/include/classic_confix.hpp>
+#include <boost/spirit/include/classic_escape_char.hpp>
+#include <boost/spirit/include/classic_lists.hpp>
 
 using namespace boost;
 using namespace boost::spirit;
+using namespace boost::spirit::classic;
 
 std::string remove_trailing_quote(std::string const &s)
 {
@@ -171,7 +172,7 @@ void Semantic_actions::new_int(int i)
 
 void Semantic_actions::new_real(double d)
 {
-	ValuePointer value(new ValueNumberFloat(null_key, (float)d));
+	ValuePointer value(new ValueNumberReal(null_key, d));
 	add_to_current(value);
 }
 
@@ -217,109 +218,108 @@ class Json_grammer
 {
 public:
 
-		Json_grammer(Semantic_actions& semantic_actions)
-		:   actions(semantic_actions)
+	Json_grammer(Semantic_actions& semantic_actions)
+		: actions(semantic_actions)
+	{ }
+
+	template< typename ScannerT >
+	struct definition
+	{
+		definition(Json_grammer const &self)
 		{
+			// need to convert the semantic action class methods to functors with the 
+			// parameter signature expected by spirit
+
+			typedef function< void( char )                     > Char_action;
+			typedef function< void( const char*, const char* ) > Str_action;
+			typedef function< void( double )                   > Real_action;
+			typedef function< void( int )                      > Int_action;
+
+			Char_action begin_obj     ( bind( &Semantic_actions::begin_obj,    &self.actions, _1 ) );
+			Char_action end_obj       ( bind( &Semantic_actions::end_obj,      &self.actions, _1 ) );
+			Char_action begin_array   ( bind( &Semantic_actions::begin_array,  &self.actions, _1 ) );
+			Char_action end_array     ( bind( &Semantic_actions::end_array,    &self.actions, _1 ) );
+			Char_action new_c_esc_ch  ( bind( &Semantic_actions::new_c_esc_ch, &self.actions, _1 ) );
+			Str_action  new_name      ( bind( &Semantic_actions::new_name,     &self.actions, _1, _2 ) );
+			Str_action  new_str       ( bind( &Semantic_actions::new_str,      &self.actions, _1, _2 ) );
+			Str_action  new_true      ( bind( &Semantic_actions::new_true,     &self.actions, _1, _2 ) );
+			Str_action  new_false     ( bind( &Semantic_actions::new_false,    &self.actions, _1, _2 ) );
+			Str_action  new_null      ( bind( &Semantic_actions::new_null,     &self.actions, _1, _2 ) );
+			Real_action new_real      ( bind( &Semantic_actions::new_real,     &self.actions, _1 ) );
+			Int_action  new_int       ( bind( &Semantic_actions::new_int,      &self.actions, _1 ) );
+
+			json
+					= ( object | array ) >> end_p
+					;
+
+			object
+					= confix_p
+						( 
+								ch_p('{')[ begin_obj ], 
+								*members, 
+								ch_p('}')[ end_obj ] 
+						)
+					;
+
+			members
+					= pair >> *( ',' >> pair )
+					;
+
+			pair
+					= string[ new_name ] 
+					>> ':' 
+					>> value
+					;
+
+			value
+					= string[ new_str ] 
+					| number
+					| object
+					| array 
+					| str_p( "true" ) [ new_true  ] 
+					| str_p( "false" )[ new_false ] 
+					| str_p( "null" ) [ new_null  ]
+					;
+
+			array
+					= confix_p
+						( 
+								ch_p('[')[ begin_array ], 
+								*list_p( elements, ',' ), 
+								ch_p(']')[ end_array ] 
+						)
+					;
+
+			elements
+					= value >> *( ',' >> value )
+					;
+
+			string
+					= lexeme_d // this causes white space inside a string to be retained
+						[
+								confix_p
+								( 
+										'"', *c_escape_ch_p[ new_c_esc_ch ],  '"' 
+								) |
+								confix_p
+								( 
+										'\'', *c_escape_ch_p[ new_c_esc_ch ],  '\'' 
+								) 
+						]
+					;
+
+			number
+					= strict_real_p[ new_real ] 
+					| int_p        [ new_int  ]
+					;
 		}
 
-		template< typename ScannerT >
-		struct definition
-		{
-				definition( const Json_grammer& self )
-				{
-						// need to convert the semantic action class methods to functors with the 
-						// parameter signature expected by spirit
+		rule< ScannerT > json, object, members, pair, array, elements, value, string, number;
 
-						typedef function< void( char )                     > Char_action;
-						typedef function< void( const char*, const char* ) > Str_action;
-						typedef function< void( double )                   > Real_action;
-						typedef function< void( int )                      > Int_action;
+		const rule< ScannerT >& start() const { return json; }
+	};
 
-						Char_action begin_obj     ( bind( &Semantic_actions::begin_obj,    &self.actions, _1 ) );
-						Char_action end_obj       ( bind( &Semantic_actions::end_obj,      &self.actions, _1 ) );
-						Char_action begin_array   ( bind( &Semantic_actions::begin_array,  &self.actions, _1 ) );
-						Char_action end_array     ( bind( &Semantic_actions::end_array,    &self.actions, _1 ) );
-						Char_action new_c_esc_ch  ( bind( &Semantic_actions::new_c_esc_ch, &self.actions, _1 ) );
-						Str_action  new_name      ( bind( &Semantic_actions::new_name,     &self.actions, _1, _2 ) );
-						Str_action  new_str       ( bind( &Semantic_actions::new_str,      &self.actions, _1, _2 ) );
-						Str_action  new_true      ( bind( &Semantic_actions::new_true,     &self.actions, _1, _2 ) );
-						Str_action  new_false     ( bind( &Semantic_actions::new_false,    &self.actions, _1, _2 ) );
-						Str_action  new_null      ( bind( &Semantic_actions::new_null,     &self.actions, _1, _2 ) );
-						Real_action new_real      ( bind( &Semantic_actions::new_real,     &self.actions, _1 ) );
-						Int_action  new_int       ( bind( &Semantic_actions::new_int,      &self.actions, _1 ) );
-
-						json
-								= ( object | array ) >> end_p
-								;
-
-						object
-								= confix_p
-									( 
-											ch_p('{')[ begin_obj ], 
-											*members, 
-											ch_p('}')[ end_obj ] 
-									)
-								;
-
-						members
-								= pair >> *( ',' >> pair )
-								;
-
-						pair
-								= string[ new_name ] 
-								>> ':' 
-								>> value
-								;
-
-						value
-								= string[ new_str ] 
-								| number
-								| object
-								| array 
-								| str_p( "true" ) [ new_true  ] 
-								| str_p( "false" )[ new_false ] 
-								| str_p( "null" ) [ new_null  ]
-								;
-
-						array
-								= confix_p
-									( 
-											ch_p('[')[ begin_array ], 
-											*list_p( elements, ',' ), 
-											ch_p(']')[ end_array ] 
-									)
-								;
-
-						elements
-								= value >> *( ',' >> value )
-								;
-
-						string
-								= lexeme_d // this causes white space inside a string to be retained
-									[
-											confix_p
-											( 
-													'"', *c_escape_ch_p[ new_c_esc_ch ],  '"' 
-											) |
-											confix_p
-											( 
-													'\'', *c_escape_ch_p[ new_c_esc_ch ],  '\'' 
-											) 
-									]
-								;
-
-						number
-								= strict_real_p[ new_real ] 
-								| int_p        [ new_int  ]
-								;
-				}
-
-				rule< ScannerT > json, object, members, pair, array, elements, value, string, number;
-
-				const rule< ScannerT >& start() const { return json; }
-		};
-
-		Semantic_actions& actions;
+	Semantic_actions& actions;
 };
 
 bool JsonDb_ParseJsonExpression(JsonDb::TransactionHandle &transaction, std::string const &expression, ValuePointer root)

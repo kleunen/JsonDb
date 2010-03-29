@@ -184,9 +184,9 @@ void JsonDb::Set(TransactionHandle &transaction, std::string const &path, std::s
 	Set(transaction, path, ValuePointer(new ValueString(null_key, value)), create_if_not_exists);
 }
 
-void JsonDb::Set(TransactionHandle &transaction, std::string const &path, float value, bool create_if_not_exists)
+void JsonDb::Set(TransactionHandle &transaction, std::string const &path, double value, bool create_if_not_exists)
 {
-	Set(transaction, path, ValuePointer(new ValueNumberFloat(null_key, value)), create_if_not_exists);
+	Set(transaction, path, ValuePointer(new ValueNumberReal(null_key, value)), create_if_not_exists);
 }
 
 void JsonDb::Set(TransactionHandle &transaction, std::string const &path, bool value, bool create_if_not_exists)
@@ -229,9 +229,9 @@ void JsonDb::AppendArray(TransactionHandle &transaction, std::string const &path
 	AppendArray(transaction, path, ValuePointer(new ValueString(transaction->GenerateKey(), value)));
 }
 
-void JsonDb::AppendArray(TransactionHandle &transaction, std::string const &path, float value)
+void JsonDb::AppendArray(TransactionHandle &transaction, std::string const &path, double value)
 {
-	AppendArray(transaction, path, ValuePointer(new ValueNumberFloat(transaction->GenerateKey(), value)));
+	AppendArray(transaction, path, ValuePointer(new ValueNumberReal(transaction->GenerateKey(), value)));
 }
 
 void JsonDb::SetJson(TransactionHandle &transaction, std::string const &path, std::string const &value, bool create_if_not_exists)
@@ -326,9 +326,9 @@ bool JsonDb::GetBool(TransactionHandle &transaction, std::string const &path)
 	return Get(transaction, path, throw_exception).second->GetValueBoolean();
 }
 
-float JsonDb::GetFloat(TransactionHandle &transaction, std::string const &path)
+double JsonDb::GetReal(TransactionHandle &transaction, std::string const &path)
 {
-	return Get(transaction, path, throw_exception).second->GetValueFloat();
+	return Get(transaction, path, throw_exception).second->GetValueReal();
 }
 
 bool JsonDb::Exists(TransactionHandle &transaction, std::string const &path) 

@@ -35,24 +35,24 @@ void JsonDb_CreateDatabase(JsonDb &json_db)
 
 	json_db.Set(transaction, "this.is.a.deep.test.path.int_value", 1);
 	BOOST_CHECK(json_db.GetInt(transaction, "this.is.a.deep.test.path.int_value") == 1);
-	BOOST_CHECK_THROW(json_db.GetFloat(transaction, "this.is.a.deep.test.path.int_value"), std::runtime_error); 
+	BOOST_CHECK_THROW(json_db.GetReal(transaction, "this.is.a.deep.test.path.int_value"), std::runtime_error); 
 	BOOST_CHECK_THROW(json_db.GetString(transaction, "this.is.a.deep.test.path.int_value"), std::runtime_error); 
 	BOOST_CHECK_THROW(json_db.GetBool(transaction, "this.is.a.deep.test.path.int_value"), std::runtime_error); 
 	BOOST_CHECK_THROW(json_db.GetInt(transaction, "this.is.a.deep.test.path.int_value.sub_value"), std::runtime_error); 
 	BOOST_CHECK_THROW(json_db.GetInt(transaction, "this.is.a.deep.test.path.int_value[0]"), std::runtime_error); 
 
-	json_db.Set(transaction, "this.is.a.deep.test.path.float_value", 1.1f);
-	BOOST_CHECK(json_db.GetFloat(transaction, "this.is.a.deep.test.path.float_value") == 1.1f);
-	BOOST_CHECK_THROW(json_db.GetInt(transaction, "this.is.a.deep.test.path.float_value"), std::runtime_error); 
-	BOOST_CHECK_THROW(json_db.GetString(transaction, "this.is.a.deep.test.path.float_value"), std::runtime_error); 
-	BOOST_CHECK_THROW(json_db.GetBool(transaction, "this.is.a.deep.test.path.float_value"), std::runtime_error); 
-	BOOST_CHECK_THROW(json_db.GetInt(transaction, "this.is.a.deep.test.path.float_value.sub_value"), std::runtime_error); 
-	BOOST_CHECK_THROW(json_db.GetInt(transaction, "this.is.a.deep.test.path.float_value[0]"), std::runtime_error); 
+	json_db.Set(transaction, "this.is.a.deep.test.path.real_value", 1.1f);
+	BOOST_CHECK(json_db.GetReal(transaction, "this.is.a.deep.test.path.real_value") == 1.1f);
+	BOOST_CHECK_THROW(json_db.GetInt(transaction, "this.is.a.deep.test.path.real_value"), std::runtime_error); 
+	BOOST_CHECK_THROW(json_db.GetString(transaction, "this.is.a.deep.test.path.real_value"), std::runtime_error); 
+	BOOST_CHECK_THROW(json_db.GetBool(transaction, "this.is.a.deep.test.path.real_value"), std::runtime_error); 
+	BOOST_CHECK_THROW(json_db.GetInt(transaction, "this.is.a.deep.test.path.real_value.sub_value"), std::runtime_error); 
+	BOOST_CHECK_THROW(json_db.GetInt(transaction, "this.is.a.deep.test.path.real_value[0]"), std::runtime_error); 
 
 	json_db.Set(transaction, "this.is.a.deep.test.path.string_value", "test");
 	BOOST_CHECK(json_db.GetString(transaction, "this.is.a.deep.test.path.string_value") == "test");
 	BOOST_CHECK_THROW(json_db.GetInt(transaction, "this.is.a.deep.test.path.string_value"), std::runtime_error); 
-	BOOST_CHECK_THROW(json_db.GetFloat(transaction, "this.is.a.deep.test.path.string_value"), std::runtime_error); 
+	BOOST_CHECK_THROW(json_db.GetReal(transaction, "this.is.a.deep.test.path.string_value"), std::runtime_error); 
 	BOOST_CHECK_THROW(json_db.GetBool(transaction, "this.is.a.deep.test.path.string_value"), std::runtime_error); 
 	BOOST_CHECK_THROW(json_db.GetInt(transaction, "this.is.a.deep.test.path.string_value.sub_value"), std::runtime_error); 
 	BOOST_CHECK_THROW(json_db.GetInt(transaction, "this.is.a.deep.test.path.string_value[0]"), std::runtime_error); 
@@ -63,7 +63,7 @@ void JsonDb_CreateDatabase(JsonDb &json_db)
 	json_db.Set(transaction, "this.is.a.deep.test.path.bool_value", true);
 	BOOST_CHECK(json_db.GetBool(transaction, "this.is.a.deep.test.path.bool_value") == true); 
 	BOOST_CHECK_THROW(json_db.GetInt(transaction, "this.is.a.deep.test.path.bool_value"), std::runtime_error); 
-	BOOST_CHECK_THROW(json_db.GetFloat(transaction, "this.is.a.deep.test.path.bool_value"), std::runtime_error); 
+	BOOST_CHECK_THROW(json_db.GetReal(transaction, "this.is.a.deep.test.path.bool_value"), std::runtime_error); 
 	BOOST_CHECK_THROW(json_db.GetString(transaction, "this.is.a.deep.test.path.bool_value"), std::runtime_error); 
 	BOOST_CHECK_THROW(json_db.GetInt(transaction, "this.is.a.deep.test.path.bool_value.sub_value"), std::runtime_error); 
 	BOOST_CHECK_THROW(json_db.GetInt(transaction, "this.is.a.deep.test.path.bool_value[0]"), std::runtime_error); 
@@ -108,7 +108,7 @@ void JsonDb_CreateDatabase(JsonDb &json_db)
 	BOOST_CHECK(json_db.GetInt(transaction, "this.is.a.deep.test.path.append_array[0]") == 100);
 	BOOST_CHECK(json_db.GetBool(transaction, "this.is.a.deep.test.path.append_array[1]") == false);
 	BOOST_CHECK(json_db.GetString(transaction, "this.is.a.deep.test.path.append_array[2]") == "test");
-	BOOST_CHECK(json_db.GetFloat(transaction, "this.is.a.deep.test.path.append_array[3]") == 1.0f); 
+	BOOST_CHECK(json_db.GetReal(transaction, "this.is.a.deep.test.path.append_array[3]") == 1.0f); 
 
 	// Test delete
 	json_db.Set(transaction, "this.is.a.deep.test.path.delete_value", 1);
@@ -125,7 +125,7 @@ void JsonDb_ValidateDatabase(JsonDb &json_db)
 	JsonDb::TransactionHandle transaction = json_db.StartTransaction();
 
 	BOOST_CHECK(json_db.GetInt(transaction, "this.is.a.deep.test.path.int_value") == 1);
-	BOOST_CHECK(json_db.GetFloat(transaction, "this.is.a.deep.test.path.float_value") == 1.1f);
+	BOOST_CHECK(json_db.GetReal(transaction, "this.is.a.deep.test.path.real_value") == 1.1f);
 	BOOST_CHECK(json_db.GetString(transaction, "this.is.a.deep.test.path.string_value") == "test");
 	BOOST_CHECK(json_db.GetBool(transaction, "this.is.a.deep.test.path.bool_value") == true); 
 
@@ -145,7 +145,7 @@ void JsonDb_ValidateDatabase(JsonDb &json_db)
 	BOOST_CHECK(json_db.GetInt(transaction, "this.is.a.deep.test.path.append_array[0]") == 100);
 	BOOST_CHECK(json_db.GetBool(transaction, "this.is.a.deep.test.path.append_array[1]") == false);
 	BOOST_CHECK(json_db.GetString(transaction, "this.is.a.deep.test.path.append_array[2]") == "test");
-	BOOST_CHECK(json_db.GetFloat(transaction, "this.is.a.deep.test.path.append_array[3]") == 1.0f); 
+	BOOST_CHECK(json_db.GetReal(transaction, "this.is.a.deep.test.path.append_array[3]") == 1.0f); 
 
 	json_db.Print(transaction, std::cout);
 	std::cout << std::endl;
@@ -169,7 +169,7 @@ void JsonDb_ParserTest(JsonDb &json_db)
 		"{"
 		"		'name' 	: 'Wouter van Kleunen',"
 		"		'email' : 'wouter.van@kleunen.nl',"
-		"		'float_value' : 1.0,"
+		"		'real_value' : 1.0,"
 		"		'int_value' 	: 1,"
 		"		'bool_true_value' : true,"
 		" 	'bool_false_value' : false,"
@@ -184,7 +184,7 @@ void JsonDb_ParserTest(JsonDb &json_db)
 	json_db.SetJson(transaction, "json_test", json_value_str);
 	BOOST_CHECK(json_db.GetString(transaction, "json_test.name") == "Wouter van Kleunen");
 	BOOST_CHECK(json_db.GetString(transaction, "json_test.email") == "wouter.van@kleunen.nl");
-	BOOST_CHECK(json_db.GetFloat(transaction, "json_test.float_value") == 1.0);
+	BOOST_CHECK(json_db.GetReal(transaction, "json_test.real_value") == 1.0);
 	BOOST_CHECK(json_db.GetInt(transaction, "json_test.int_value") == 1);
 	BOOST_CHECK(json_db.GetBool(transaction, "json_test.bool_true_value") == true);
 	BOOST_CHECK(json_db.GetBool(transaction, "json_test.bool_false_value") == false);

@@ -137,7 +137,7 @@ public:
 		Set(transaction, path, value_str, create_if_not_exists);
 	}
 
-	void Set(TransactionHandle &transaction, std::string const &path, float value, bool create_if_not_exists = true);
+	void Set(TransactionHandle &transaction, std::string const &path, double value, bool create_if_not_exists = true);
 	void Set(TransactionHandle &transaction, std::string const &path, bool value, bool create_if_not_exists = true);
 
 	void SetJson(TransactionHandle &transaction, std::string const &path, std::string const &value, bool create_if_not_exists = true);
@@ -159,13 +159,13 @@ public:
 		AppendArray(transaction, path, value_str);
 	}
 	void AppendArray(TransactionHandle &transaction, std::string const &path, bool value);
-	void AppendArray(TransactionHandle &transaction, std::string const &path, float value);
+	void AppendArray(TransactionHandle &transaction, std::string const &path, double value);
 
 	// Read values from the database
 	std::string GetString(TransactionHandle &transaction, std::string const &path);
 	int GetInt(TransactionHandle &transaction, std::string const &path);
 	bool GetBool(TransactionHandle &transaction, std::string const &path);
-	float GetFloat(TransactionHandle &transaction, std::string const &path);
+	double GetReal(TransactionHandle &transaction, std::string const &path);
 
 	// Returns true if the specified path exists
 	bool Exists(TransactionHandle &transaction, std::string const &path);
