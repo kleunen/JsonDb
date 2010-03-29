@@ -150,6 +150,17 @@ public:
 	// Create an array with the specified number of elements at the path
 	void SetArray(TransactionHandle &transaction, std::string const &path, size_t elements, bool create_if_not_exists = true);
 
+	// Append an element to an existing array
+	void AppendArray(TransactionHandle &transaction, std::string const &path, int value);
+	void AppendArray(TransactionHandle &transaction, std::string const &path, std::string const &value);
+	void AppendArray(TransactionHandle &transaction, std::string const &path, char const *value)
+	{
+		std::string value_str(value);
+		AppendArray(transaction, path, value_str);
+	}
+	void AppendArray(TransactionHandle &transaction, std::string const &path, bool value);
+	void AppendArray(TransactionHandle &transaction, std::string const &path, float value);
+
 	// Read values from the database
 	std::string GetString(TransactionHandle &transaction, std::string const &path);
 	int GetInt(TransactionHandle &transaction, std::string const &path);
@@ -189,6 +200,9 @@ private:
 
 	// Delete raw element
 	void Delete(TransactionHandle &transaction, ValuePointer value);
+
+	// Append raw element to array
+	void AppendArray(TransactionHandle &transaction, std::string const &path, ValuePointer const &value);
 
 	// Our database filename
 	std::string filename;

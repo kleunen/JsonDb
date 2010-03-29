@@ -4,7 +4,7 @@ BUILD_DIR_FILE := $(BUILD_DIR)/.empty
 ifdef DEBUG 
 BUILD_TYPE := debug
 else
-BUILD_TYPE := minsizerel
+BUILD_TYPE := release
 endif
 
 default: all

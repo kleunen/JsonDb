@@ -60,7 +60,7 @@ public:
 
 private:
 
-	void add_to_current(ValuePointer &value); 
+	void add_to_current(ValuePointer value); 
 	std::string get_current_str();
 
 	JsonDb::TransactionHandle transaction;
@@ -90,7 +90,7 @@ void Semantic_actions::begin_obj(char c)
 	// Add a new value
 	ValuePointer new_value(new ValueObject(null_key));
 	add_to_current(new_value);
-	current_value = new_value;
+	current_value = new_value; 
 }
 
 void Semantic_actions::end_obj(char c)
@@ -98,7 +98,7 @@ void Semantic_actions::end_obj(char c)
 	assert(c == '}');
 	transaction->Store(current_value->GetKey(), current_value);
 	current_value = stack.back();
-	stack.pop_back();
+	stack.pop_back(); 
 }
 
 void Semantic_actions::begin_array(char c)
@@ -111,7 +111,7 @@ void Semantic_actions::begin_array(char c)
 	// Add a new value
 	ValuePointer new_value(new ValueArray(null_key));
 	add_to_current(new_value);
-	current_value = new_value;
+	current_value = new_value; 
 }
 
 void Semantic_actions::end_array(char c)
@@ -120,7 +120,7 @@ void Semantic_actions::end_array(char c)
 
 	transaction->Store(current_value->GetKey(), current_value);
 	current_value = stack.back();
-	stack.pop_back();
+	stack.pop_back(); 
 }
 
 void Semantic_actions::new_c_esc_ch(char c)  // work around for c_escape_ch_p parser bug where
@@ -175,7 +175,7 @@ void Semantic_actions::new_real(double d)
 	add_to_current(value);
 }
 
-void Semantic_actions::add_to_current(ValuePointer &value)
+void Semantic_actions::add_to_current(ValuePointer value)
 {
 	if(current_value == root)
 	{
@@ -192,14 +192,14 @@ void Semantic_actions::add_to_current(ValuePointer &value)
 		old_value->Delete(transaction);
 		value->SetKey(key);
 		transaction->Store(key, value);
-	}	else if(current_value->GetType() == Value::VALUE_ARRAY)
+	}	 else if(current_value->GetType() == Value::VALUE_ARRAY)
 	{
 		// Append to the list
 		ValueKey key = transaction->GenerateKey();
 		value->SetKey(key);
 		current_value->Append(transaction, key);
 		transaction->Store(key, value);
-	}
+	} 
 }
 
 std::string Semantic_actions::get_current_str()

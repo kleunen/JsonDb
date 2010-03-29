@@ -105,7 +105,7 @@ public:
 	}
 
 	// Append an item to a list
-	virtual ValuePointer Append(JsonDb::TransactionHandle &transaction, ValueKey key) 
+	virtual void Append(JsonDb::TransactionHandle &transaction, ValueKey key) 
 	{
 		throw std::runtime_error((boost::format("Failed to append element, item is of type '%s'") % GetTypeString()).str().c_str());
 	}
@@ -327,7 +327,7 @@ public:
 	ValuePointer Get(JsonDb::TransactionHandle &transaction, std::string const &complete_path, size_t index);
 
 	// Append an item to a list
-	ValuePointer Append(JsonDb::TransactionHandle &transaction, ValueKey key);
+	void Append(JsonDb::TransactionHandle &transaction, ValueKey key);
 
 	// Delete this element and all subelements
 	void Delete(JsonDb::TransactionHandle &transaction);

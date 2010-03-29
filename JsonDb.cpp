@@ -207,6 +207,33 @@ void JsonDb::SetArray(TransactionHandle &transaction, std::string const &path, s
 	Set(transaction, path, ValuePointer(new ValueArray(null_key, elements)), create_if_not_exists);
 }
 
+void JsonDb::AppendArray(TransactionHandle &transaction, std::string const &path, ValuePointer const &value)
+{
+	std::pair<ValuePointer, ValuePointer> old_value = Get(transaction, path, throw_exception);
+	old_value.second->Append(transaction, value->GetKey());
+	transaction->Store(value->GetKey(), value);
+}
+
+void JsonDb::AppendArray(TransactionHandle &transaction, std::string const &path, int value)
+{
+	AppendArray(transaction, path, ValuePointer(new ValueNumberInteger(transaction->GenerateKey(), value)));
+}
+
+void JsonDb::AppendArray(TransactionHandle &transaction, std::string const &path, bool value)
+{
+	AppendArray(transaction, path, ValuePointer(new ValueNumberBoolean(transaction->GenerateKey(), value)));
+}
+
+void JsonDb::AppendArray(TransactionHandle &transaction, std::string const &path, std::string const &value)
+{
+	AppendArray(transaction, path, ValuePointer(new ValueString(transaction->GenerateKey(), value)));
+}
+
+void JsonDb::AppendArray(TransactionHandle &transaction, std::string const &path, float value)
+{
+	AppendArray(transaction, path, ValuePointer(new ValueNumberFloat(transaction->GenerateKey(), value)));
+}
+
 void JsonDb::SetJson(TransactionHandle &transaction, std::string const &path, std::string const &value, bool create_if_not_exists)
 {
 	std::pair<ValuePointer, ValuePointer> old_value = Get(transaction, path, create_if_not_exists ? create : throw_exception);
@@ -261,7 +288,7 @@ std::pair<ValuePointer, ValuePointer> JsonDb::Get(TransactionHandle &transaction
 
 				parent = element;
 				element = element->Get(transaction, current_path, index);
-				current_path += element_index_str;
+				current_path += "[" + element_index_str + "]";
 
 				index_start_pos = index_end_pos + 1;
 				if(index_start_pos == name.size())

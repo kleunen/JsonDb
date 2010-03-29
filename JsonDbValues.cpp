@@ -117,7 +117,7 @@ ValuePointer ValueArray::Get(JsonDb::TransactionHandle &transaction, std::string
 	return transaction->Retrieve(values[index]);
 }
 
-ValuePointer ValueArray::Append(JsonDb::TransactionHandle &transaction, ValueKey key)
+void ValueArray::Append(JsonDb::TransactionHandle &transaction, ValueKey key)
 {
 	values.push_back(key);
 	transaction->Store(GetKey(), shared_from_this());

@@ -23,6 +23,10 @@
 #include <iostream>
 
 #include <boost/format.hpp>
+
+#define BOOST_TEST_DYN_LINK
+#define BOOST_TEST_MAIN
+#define BOOST_TEST_MODULE JsonDbTest
 #include <boost/test/unit_test.hpp>
 
 void JsonDb_CreateDatabase(JsonDb &json_db)
@@ -93,6 +97,19 @@ void JsonDb_CreateDatabase(JsonDb &json_db)
 	BOOST_CHECK(json_db.Exists(transaction, "this.is.a.deep.test.path.array_value") == true);
 	BOOST_CHECK(json_db.Exists(transaction, "this.is.a.deep.test.blaat") == false);
 
+	// Append to an array
+	json_db.SetArray(transaction, "this.is.a.deep.test.path.append_array", 0);
+	json_db.AppendArray(transaction, "this.is.a.deep.test.path.append_array", 100);
+	json_db.AppendArray(transaction, "this.is.a.deep.test.path.append_array", false);
+	json_db.AppendArray(transaction, "this.is.a.deep.test.path.append_array", "test");
+	json_db.AppendArray(transaction, "this.is.a.deep.test.path.append_array", 1.0f);
+
+	// Check if items are appended
+	BOOST_CHECK(json_db.GetInt(transaction, "this.is.a.deep.test.path.append_array[0]") == 100);
+	BOOST_CHECK(json_db.GetBool(transaction, "this.is.a.deep.test.path.append_array[1]") == false);
+	BOOST_CHECK(json_db.GetString(transaction, "this.is.a.deep.test.path.append_array[2]") == "test");
+	BOOST_CHECK(json_db.GetFloat(transaction, "this.is.a.deep.test.path.append_array[3]") == 1.0f); 
+
 	// Test delete
 	json_db.Set(transaction, "this.is.a.deep.test.path.delete_value", 1);
 	BOOST_CHECK(json_db.Exists(transaction, "this.is.a.deep.test.path.delete_value") == true);
@@ -125,6 +142,11 @@ void JsonDb_ValidateDatabase(JsonDb &json_db)
 	BOOST_CHECK(json_db.Exists(transaction, "this.is.a.deep.test.path.array_value[0]") == true);
 	BOOST_CHECK(json_db.Exists(transaction, "this.is.a.deep.test.path.array_value") == true);
 
+	BOOST_CHECK(json_db.GetInt(transaction, "this.is.a.deep.test.path.append_array[0]") == 100);
+	BOOST_CHECK(json_db.GetBool(transaction, "this.is.a.deep.test.path.append_array[1]") == false);
+	BOOST_CHECK(json_db.GetString(transaction, "this.is.a.deep.test.path.append_array[2]") == "test");
+	BOOST_CHECK(json_db.GetFloat(transaction, "this.is.a.deep.test.path.append_array[3]") == 1.0f); 
+
 	json_db.Print(transaction, std::cout);
 	std::cout << std::endl;
 }
@@ -156,10 +178,10 @@ void JsonDb_ParserTest(JsonDb &json_db)
 		"		'deep_object' : { 'a': { 'd' : 30, 'e' : '40' }, 'b' : 'test', 'c' : false },"
 		"		'array_value' : [ 10, 'test', false ]"
 		"}";
-
 	JsonDb::TransactionHandle transaction = json_db.StartTransaction();
 
-	json_db.SetJson(transaction, "json_test", json_value);
+	std::string json_value_str(json_value);
+	json_db.SetJson(transaction, "json_test", json_value_str);
 	BOOST_CHECK(json_db.GetString(transaction, "json_test.name") == "Wouter van Kleunen");
 	BOOST_CHECK(json_db.GetString(transaction, "json_test.email") == "wouter.van@kleunen.nl");
 	BOOST_CHECK(json_db.GetFloat(transaction, "json_test.float_value") == 1.0);
@@ -173,30 +195,30 @@ void JsonDb_ParserTest(JsonDb &json_db)
 	BOOST_CHECK(json_db.GetString(transaction, "json_test.sub_object.b") == "test");
 	BOOST_CHECK(json_db.GetBool(transaction, "json_test.sub_object.c") == false);
 	BOOST_CHECK(json_db.GetInt(transaction, "json_test.deep_object.a.d") == 30);
-	BOOST_CHECK(json_db.GetString(transaction, "json_test.deep_object.a.e") == "40");
+	BOOST_CHECK(json_db.GetString(transaction, "json_test.deep_object.a.e") == "40");  
 
 	json_db.Print(transaction, std::cout);
 	std::cout << std::endl;
 }
 
-void JsonDb_Test()
+BOOST_AUTO_TEST_CASE(JsonDbTest)
 {
-	JsonDb json_db("test.db");
+	try
+	{
+		JsonDb json_db("test.db");
 
-	JsonDb_CreateDatabase(json_db);
-	JsonDb_ValidateDatabase(json_db);
-	JsonDb_EmptyDatabase(json_db);
-	JsonDb_ParserTest(json_db);
+		JsonDb_CreateDatabase(json_db);
+		JsonDb_ValidateDatabase(json_db);
+		JsonDb_EmptyDatabase(json_db);
+		JsonDb_ParserTest(json_db);
 
-	// Delete the complete database
-	json_db.Delete();
+		// Delete the complete database
+		json_db.Delete();
+	} catch(std::runtime_error e)
+	{
+		std::cout << "Internal error while running unit test: " << e.what() << std::endl;
+	}
 }
 
 
-boost::unit_test::test_suite *init_unit_test_suite(int argc, char **argv) 
-{
-	boost::unit_test::test_suite *test(BOOST_TEST_SUITE("JsonDb unit test"));
-	test->add(BOOST_TEST_CASE(&JsonDb_Test));
-	return test; 
-}
 
