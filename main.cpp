@@ -33,88 +33,94 @@ void JsonDb_CreateDatabase(JsonDb &json_db)
 {
 	JsonDb::TransactionHandle transaction = json_db.StartTransaction();
 
-	json_db.Set(transaction, "this.is.a.deep.test.path.int_value", 1);
-	BOOST_CHECK(json_db.GetInt(transaction, "this.is.a.deep.test.path.int_value") == 1);
-	BOOST_CHECK_THROW(json_db.GetReal(transaction, "this.is.a.deep.test.path.int_value"), std::runtime_error); 
-	BOOST_CHECK_THROW(json_db.GetString(transaction, "this.is.a.deep.test.path.int_value"), std::runtime_error); 
-	BOOST_CHECK_THROW(json_db.GetBool(transaction, "this.is.a.deep.test.path.int_value"), std::runtime_error); 
-	BOOST_CHECK_THROW(json_db.GetInt(transaction, "this.is.a.deep.test.path.int_value.sub_value"), std::runtime_error); 
-	BOOST_CHECK_THROW(json_db.GetInt(transaction, "this.is.a.deep.test.path.int_value[0]"), std::runtime_error); 
+	json_db.Set(transaction, "$.this.is.a.deep.test.path.int_value", 1);
+	BOOST_CHECK(json_db.GetInt(transaction, "$.this.is.a.deep.test.path.int_value") == 1);
+	BOOST_CHECK_THROW(json_db.GetReal(transaction, "$.this.is.a.deep.test.path.int_value"), std::runtime_error); 
+	BOOST_CHECK_THROW(json_db.GetString(transaction, "$.this.is.a.deep.test.path.int_value"), std::runtime_error); 
+	BOOST_CHECK_THROW(json_db.GetBool(transaction, "$.this.is.a.deep.test.path.int_value"), std::runtime_error); 
+	BOOST_CHECK_THROW(json_db.GetInt(transaction, "$.this.is.a.deep.test.path.int_value.sub_value"), std::runtime_error); 
+	BOOST_CHECK_THROW(json_db.GetInt(transaction, "$.this.is.a.deep.test.path.int_value[0]"), std::runtime_error); 
 
-	json_db.Set(transaction, "this.is.a.deep.test.path.real_value", 1.1f);
-	BOOST_CHECK(json_db.GetReal(transaction, "this.is.a.deep.test.path.real_value") == 1.1f);
-	BOOST_CHECK_THROW(json_db.GetInt(transaction, "this.is.a.deep.test.path.real_value"), std::runtime_error); 
-	BOOST_CHECK_THROW(json_db.GetString(transaction, "this.is.a.deep.test.path.real_value"), std::runtime_error); 
-	BOOST_CHECK_THROW(json_db.GetBool(transaction, "this.is.a.deep.test.path.real_value"), std::runtime_error); 
-	BOOST_CHECK_THROW(json_db.GetInt(transaction, "this.is.a.deep.test.path.real_value.sub_value"), std::runtime_error); 
-	BOOST_CHECK_THROW(json_db.GetInt(transaction, "this.is.a.deep.test.path.real_value[0]"), std::runtime_error); 
+	json_db.Set(transaction, "$.this.is.a.deep.test.path.real_value", 1.1f);
+	BOOST_CHECK(json_db.GetReal(transaction, "$.this.is.a.deep.test.path.real_value") == 1.1f);
+	BOOST_CHECK_THROW(json_db.GetInt(transaction, "$.this.is.a.deep.test.path.real_value"), std::runtime_error); 
+	BOOST_CHECK_THROW(json_db.GetString(transaction, "$.this.is.a.deep.test.path.real_value"), std::runtime_error); 
+	BOOST_CHECK_THROW(json_db.GetBool(transaction, "$.this.is.a.deep.test.path.real_value"), std::runtime_error); 
+	BOOST_CHECK_THROW(json_db.GetInt(transaction, "$.this.is.a.deep.test.path.real_value.sub_value"), std::runtime_error); 
+	BOOST_CHECK_THROW(json_db.GetInt(transaction, "$.this.is.a.deep.test.path.real_value[0]"), std::runtime_error); 
 
-	json_db.Set(transaction, "this.is.a.deep.test.path.string_value", "test");
-	BOOST_CHECK(json_db.GetString(transaction, "this.is.a.deep.test.path.string_value") == "test");
-	BOOST_CHECK_THROW(json_db.GetInt(transaction, "this.is.a.deep.test.path.string_value"), std::runtime_error); 
-	BOOST_CHECK_THROW(json_db.GetReal(transaction, "this.is.a.deep.test.path.string_value"), std::runtime_error); 
-	BOOST_CHECK_THROW(json_db.GetBool(transaction, "this.is.a.deep.test.path.string_value"), std::runtime_error); 
-	BOOST_CHECK_THROW(json_db.GetInt(transaction, "this.is.a.deep.test.path.string_value.sub_value"), std::runtime_error); 
-	BOOST_CHECK_THROW(json_db.GetInt(transaction, "this.is.a.deep.test.path.string_value[0]"), std::runtime_error); 
+	json_db.Set(transaction, "$.this.is.a.deep.test.path.string_value", "test");
+	BOOST_CHECK(json_db.GetString(transaction, "$.this.is.a.deep.test.path.string_value") == "test");
+	BOOST_CHECK_THROW(json_db.GetInt(transaction, "$.this.is.a.deep.test.path.string_value"), std::runtime_error); 
+	BOOST_CHECK_THROW(json_db.GetReal(transaction, "$.this.is.a.deep.test.path.string_value"), std::runtime_error); 
+	BOOST_CHECK_THROW(json_db.GetBool(transaction, "$.this.is.a.deep.test.path.string_value"), std::runtime_error); 
+	BOOST_CHECK_THROW(json_db.GetInt(transaction, "$.this.is.a.deep.test.path.string_value.sub_value"), std::runtime_error); 
+	BOOST_CHECK_THROW(json_db.GetInt(transaction, "$.this.is.a.deep.test.path.string_value[0]"), std::runtime_error); 
 
-	json_db.Set(transaction, "this.is.a.deep.test.path.long_string_value", "this is a very long string");
-	BOOST_CHECK(json_db.GetString(transaction, "this.is.a.deep.test.path.long_string_value") == "this is a very long string");
+	json_db.Set(transaction, "$.this.is.a.deep.test.path.long_string_value", "this is a very long string");
+	BOOST_CHECK(json_db.GetString(transaction, "$.this.is.a.deep.test.path.long_string_value") == "this is a very long string");
 
-	json_db.Set(transaction, "this.is.a.deep.test.path.bool_value", true);
-	BOOST_CHECK(json_db.GetBool(transaction, "this.is.a.deep.test.path.bool_value") == true); 
-	BOOST_CHECK_THROW(json_db.GetInt(transaction, "this.is.a.deep.test.path.bool_value"), std::runtime_error); 
-	BOOST_CHECK_THROW(json_db.GetReal(transaction, "this.is.a.deep.test.path.bool_value"), std::runtime_error); 
-	BOOST_CHECK_THROW(json_db.GetString(transaction, "this.is.a.deep.test.path.bool_value"), std::runtime_error); 
-	BOOST_CHECK_THROW(json_db.GetInt(transaction, "this.is.a.deep.test.path.bool_value.sub_value"), std::runtime_error); 
-	BOOST_CHECK_THROW(json_db.GetInt(transaction, "this.is.a.deep.test.path.bool_value[0]"), std::runtime_error); 
+	json_db.Set(transaction, "$.this.is.a.deep.test.path.bool_value", true);
+	BOOST_CHECK(json_db.GetBool(transaction, "$.this.is.a.deep.test.path.bool_value") == true); 
+	BOOST_CHECK_THROW(json_db.GetInt(transaction, "$.this.is.a.deep.test.path.bool_value"), std::runtime_error); 
+	BOOST_CHECK_THROW(json_db.GetReal(transaction, "$.this.is.a.deep.test.path.bool_value"), std::runtime_error); 
+	BOOST_CHECK_THROW(json_db.GetString(transaction, "$.this.is.a.deep.test.path.bool_value"), std::runtime_error); 
+	BOOST_CHECK_THROW(json_db.GetInt(transaction, "$.this.is.a.deep.test.path.bool_value.sub_value"), std::runtime_error); 
+	BOOST_CHECK_THROW(json_db.GetInt(transaction, "$.this.is.a.deep.test.path.bool_value[0]"), std::runtime_error); 
 
 	// Create an empty array
-	json_db.SetArray(transaction, "this.is.a.deep.test.path.array_value", 5);
+	json_db.SetArray(transaction, "$.this.is.a.deep.test.path.array_value", 5);
 
 	// Set some values in the array
 	for(int i = 0; i < 5; ++i)
-		json_db.Set(transaction, (boost::format("this.is.a.deep.test.path.array_value[%d]") % i).str(), i * 10);
+		json_db.Set(transaction, (boost::format("$.this.is.a.deep.test.path.array_value[%d]") % i).str(), i * 10);
 
 	// Get some values from the array
 	for(int i = 0; i < 5; ++i)
-		BOOST_CHECK(json_db.GetInt(transaction, (boost::format(("this.is.a.deep.test.path.array_value[%d]")) % i).str()) == i * 10);
+		BOOST_CHECK(json_db.GetInt(transaction, (boost::format(("$.this.is.a.deep.test.path.array_value[%d]")) % i).str()) == i * 10);
 	for(int i = 6; i < 10; ++i)
-		BOOST_CHECK_THROW(json_db.GetInt(transaction, (boost::format(("this.is.a.deep.test.path.array_value[%d]")) % i).str()), std::runtime_error);
+		BOOST_CHECK_THROW(json_db.GetInt(transaction, (boost::format(("$.this.is.a.deep.test.path.array_value[%d]")) % i).str()), std::runtime_error);
 
 	// Create some multilevel arrays
-	json_db.SetArray(transaction, "this.is.a.deep.test.path.multilevel_array_value", 5);
+	json_db.SetArray(transaction, "$.this.is.a.deep.test.path.multilevel_array_value", 5);
 	for(int i = 0; i < 5; ++i)
-		json_db.SetArray(transaction, (boost::format("this.is.a.deep.test.path.multilevel_array_value[%d]") % i).str(), i);
+		json_db.SetArray(transaction, (boost::format("$.this.is.a.deep.test.path.multilevel_array_value[%d]") % i).str(), i);
 
 	// Validate values in multilevel array
 	for(int i = 0; i < 5; ++i)
 		for(int j = 0; j < i; ++j)
-			json_db.Set(transaction, (boost::format("this.is.a.deep.test.path.multilevel_array_value[%d][%d]") % i % j).str(), i * j);
+			json_db.Set(transaction, (boost::format("$.this.is.a.deep.test.path.multilevel_array_value[%d][%d]") % i % j).str(), i * j);
 	
 	// Check exists
-	BOOST_CHECK(json_db.Exists(transaction, "this.is.a.deep.test.path") == true);
-	BOOST_CHECK(json_db.Exists(transaction, "this.is.a.deep.test.path.array_value[0]") == true);
-	BOOST_CHECK(json_db.Exists(transaction, "this.is.a.deep.test.path.array_value") == true);
-	BOOST_CHECK(json_db.Exists(transaction, "this.is.a.deep.test.blaat") == false);
+	BOOST_CHECK(json_db.Exists(transaction, "$.this.is.a.deep.test.path") == true);
+	BOOST_CHECK(json_db.Exists(transaction, "$.this.is.a.deep.test.path.array_value[0]") == true);
+	BOOST_CHECK(json_db.Exists(transaction, "$.this.is.a.deep.test.path.array_value") == true);
+	BOOST_CHECK(json_db.Exists(transaction, "$.this.is.a.deep.test.blaat") == false);
 
 	// Append to an array
-	json_db.SetArray(transaction, "this.is.a.deep.test.path.append_array", 0);
-	json_db.AppendArray(transaction, "this.is.a.deep.test.path.append_array", 100);
-	json_db.AppendArray(transaction, "this.is.a.deep.test.path.append_array", false);
-	json_db.AppendArray(transaction, "this.is.a.deep.test.path.append_array", "test");
-	json_db.AppendArray(transaction, "this.is.a.deep.test.path.append_array", 1.0f);
+	json_db.SetArray(transaction, "$.this.is.a.deep.test.path.append_array", 0);
+	json_db.AppendArray(transaction, "$.this.is.a.deep.test.path.append_array", 100);
+	json_db.AppendArray(transaction, "$.this.is.a.deep.test.path.append_array", false);
+	json_db.AppendArray(transaction, "$.this.is.a.deep.test.path.append_array", "test");
+	json_db.AppendArray(transaction, "$.this.is.a.deep.test.path.append_array", 1.0f);
 
 	// Check if items are appended
-	BOOST_CHECK(json_db.GetInt(transaction, "this.is.a.deep.test.path.append_array[0]") == 100);
-	BOOST_CHECK(json_db.GetBool(transaction, "this.is.a.deep.test.path.append_array[1]") == false);
-	BOOST_CHECK(json_db.GetString(transaction, "this.is.a.deep.test.path.append_array[2]") == "test");
-	BOOST_CHECK(json_db.GetReal(transaction, "this.is.a.deep.test.path.append_array[3]") == 1.0f); 
+	BOOST_CHECK(json_db.GetInt(transaction, "$.this.is.a.deep.test.path.append_array[0]") == 100);
+	BOOST_CHECK(json_db.GetBool(transaction, "$.this.is.a.deep.test.path.append_array[1]") == false);
+	BOOST_CHECK(json_db.GetString(transaction, "$.this.is.a.deep.test.path.append_array[2]") == "test");
+	BOOST_CHECK(json_db.GetReal(transaction, "$.this.is.a.deep.test.path.append_array[3]") == 1.0f); 
+
+	// Test some different path access syntax
+	BOOST_CHECK(json_db.GetInt(transaction, "$['this'].is.a.deep.test.path.append_array[0]") == 100);
+	BOOST_CHECK(json_db.GetBool(transaction, "$['this'].is.a.deep.test.path.append_array[1]") == false);
+	BOOST_CHECK(json_db.GetString(transaction, "$['this']['is'].a.deep.test.path.append_array[2]") == "test");
+	BOOST_CHECK(json_db.GetReal(transaction, "$['this']['is']['a'].deep.test.path.append_array[3]") == 1.0f); 
 
 	// Test delete
-	json_db.Set(transaction, "this.is.a.deep.test.path.delete_value", 1);
-	BOOST_CHECK(json_db.Exists(transaction, "this.is.a.deep.test.path.delete_value") == true);
-	json_db.Delete(transaction, "this.is.a.deep.test.path.delete_value");
-	BOOST_CHECK(json_db.Exists(transaction, "this.is.a.deep.test.path.delete_value") == false);
+	json_db.Set(transaction, "$.this.is.a.deep.test.path.delete_value", 1);
+	BOOST_CHECK(json_db.Exists(transaction, "$.this.is.a.deep.test.path.delete_value") == true);
+	json_db.Delete(transaction, "$.this.is.a.deep.test.path.delete_value");
+	BOOST_CHECK(json_db.Exists(transaction, "$.this.is.a.deep.test.path.delete_value") == false);
 
 	// Validate the integrity of the database
 	BOOST_CHECK(json_db.Validate(transaction) == true);
@@ -124,28 +130,28 @@ void JsonDb_ValidateDatabase(JsonDb &json_db)
 {
 	JsonDb::TransactionHandle transaction = json_db.StartTransaction();
 
-	BOOST_CHECK(json_db.GetInt(transaction, "this.is.a.deep.test.path.int_value") == 1);
-	BOOST_CHECK(json_db.GetReal(transaction, "this.is.a.deep.test.path.real_value") == 1.1f);
-	BOOST_CHECK(json_db.GetString(transaction, "this.is.a.deep.test.path.string_value") == "test");
-	BOOST_CHECK(json_db.GetBool(transaction, "this.is.a.deep.test.path.bool_value") == true); 
+	BOOST_CHECK(json_db.GetInt(transaction, "$.this.is.a.deep.test.path.int_value") == 1);
+	BOOST_CHECK(json_db.GetReal(transaction, "$.this.is.a.deep.test.path.real_value") == 1.1f);
+	BOOST_CHECK(json_db.GetString(transaction, "$.this.is.a.deep.test.path.string_value") == "test");
+	BOOST_CHECK(json_db.GetBool(transaction, "$.this.is.a.deep.test.path.bool_value") == true); 
 
 	// Get some values from the array
 	for(int i = 0; i < 5; ++i)
-		BOOST_CHECK(json_db.GetInt(transaction, (boost::format(("this.is.a.deep.test.path.array_value[%d]")) % i).str()) == i * 10);
+		BOOST_CHECK(json_db.GetInt(transaction, (boost::format(("$.this.is.a.deep.test.path.array_value[%d]")) % i).str()) == i * 10);
 
 	// Validate values in multilevel array
 	for(int i = 0; i < 5; ++i)
 		for(int j = 0; j < i; ++j)
-			json_db.Set(transaction, (boost::format("this.is.a.deep.test.path.multilevel_array_value[%d][%d]") % i % j).str(), i * j);
+			json_db.Set(transaction, (boost::format("$.this.is.a.deep.test.path.multilevel_array_value[%d][%d]") % i % j).str(), i * j);
 
-	BOOST_CHECK(json_db.Exists(transaction, "this.is.a.deep.test.path") == true);
-	BOOST_CHECK(json_db.Exists(transaction, "this.is.a.deep.test.path.array_value[0]") == true);
-	BOOST_CHECK(json_db.Exists(transaction, "this.is.a.deep.test.path.array_value") == true);
+	BOOST_CHECK(json_db.Exists(transaction, "$.this.is.a.deep.test.path") == true);
+	BOOST_CHECK(json_db.Exists(transaction, "$.this.is.a.deep.test.path.array_value[0]") == true);
+	BOOST_CHECK(json_db.Exists(transaction, "$.this.is.a.deep.test.path.array_value") == true);
 
-	BOOST_CHECK(json_db.GetInt(transaction, "this.is.a.deep.test.path.append_array[0]") == 100);
-	BOOST_CHECK(json_db.GetBool(transaction, "this.is.a.deep.test.path.append_array[1]") == false);
-	BOOST_CHECK(json_db.GetString(transaction, "this.is.a.deep.test.path.append_array[2]") == "test");
-	BOOST_CHECK(json_db.GetReal(transaction, "this.is.a.deep.test.path.append_array[3]") == 1.0f); 
+	BOOST_CHECK(json_db.GetInt(transaction, "$.this.is.a.deep.test.path.append_array[0]") == 100);
+	BOOST_CHECK(json_db.GetBool(transaction, "$.this.is.a.deep.test.path.append_array[1]") == false);
+	BOOST_CHECK(json_db.GetString(transaction, "$.this.is.a.deep.test.path.append_array[2]") == "test");
+	BOOST_CHECK(json_db.GetReal(transaction, "$.this.is.a.deep.test.path.append_array[3]") == 1.0f); 
 
 	json_db.Print(transaction, std::cout);
 	std::cout << std::endl;
@@ -154,10 +160,10 @@ void JsonDb_ValidateDatabase(JsonDb &json_db)
 void JsonDb_EmptyDatabase(JsonDb &json_db)
 {
 	JsonDb::TransactionHandle transaction = json_db.StartTransaction();
-	json_db.Delete(transaction, "this");
+	json_db.Delete(transaction, "$.this");
 
-	BOOST_CHECK(json_db.Exists(transaction, "this.is.a.deep.test") == false);
-	BOOST_CHECK(json_db.Exists(transaction, "this") == false);
+	BOOST_CHECK(json_db.Exists(transaction, "$.this.is.a.deep.test") == false);
+	BOOST_CHECK(json_db.Exists(transaction, "$.this") == false);
 
 	// Validate the integrity of the database
 	BOOST_CHECK(json_db.Validate(transaction) == true);
@@ -181,21 +187,21 @@ void JsonDb_ParserTest(JsonDb &json_db)
 	JsonDb::TransactionHandle transaction = json_db.StartTransaction();
 
 	std::string json_value_str(json_value);
-	json_db.SetJson(transaction, "json_test", json_value_str);
-	BOOST_CHECK(json_db.GetString(transaction, "json_test.name") == "Wouter van Kleunen");
-	BOOST_CHECK(json_db.GetString(transaction, "json_test.email") == "wouter.van@kleunen.nl");
-	BOOST_CHECK(json_db.GetReal(transaction, "json_test.real_value") == 1.0);
-	BOOST_CHECK(json_db.GetInt(transaction, "json_test.int_value") == 1);
-	BOOST_CHECK(json_db.GetBool(transaction, "json_test.bool_true_value") == true);
-	BOOST_CHECK(json_db.GetBool(transaction, "json_test.bool_false_value") == false);
-	BOOST_CHECK(json_db.GetInt(transaction, "json_test.array_value[0]") == 10);
-	BOOST_CHECK(json_db.GetString(transaction, "json_test.array_value[1]") == "test");
-	BOOST_CHECK(json_db.GetBool(transaction, "json_test.array_value[2]") == false);
-	BOOST_CHECK(json_db.GetInt(transaction, "json_test.sub_object.a") == 10);
-	BOOST_CHECK(json_db.GetString(transaction, "json_test.sub_object.b") == "test");
-	BOOST_CHECK(json_db.GetBool(transaction, "json_test.sub_object.c") == false);
-	BOOST_CHECK(json_db.GetInt(transaction, "json_test.deep_object.a.d") == 30);
-	BOOST_CHECK(json_db.GetString(transaction, "json_test.deep_object.a.e") == "40");  
+	json_db.SetJson(transaction, "$.json_test", json_value_str);
+	BOOST_CHECK(json_db.GetString(transaction, "$.json_test.name") == "Wouter van Kleunen");
+	BOOST_CHECK(json_db.GetString(transaction, "$.json_test.email") == "wouter.van@kleunen.nl");
+	BOOST_CHECK(json_db.GetReal(transaction, "$.json_test.real_value") == 1.0);
+	BOOST_CHECK(json_db.GetInt(transaction, "$.json_test.int_value") == 1);
+	BOOST_CHECK(json_db.GetBool(transaction, "$.json_test.bool_true_value") == true);
+	BOOST_CHECK(json_db.GetBool(transaction, "$.json_test.bool_false_value") == false);
+	BOOST_CHECK(json_db.GetInt(transaction, "$.json_test.array_value[0]") == 10);
+	BOOST_CHECK(json_db.GetString(transaction, "$.json_test.array_value[1]") == "test");
+	BOOST_CHECK(json_db.GetBool(transaction, "$.json_test.array_value[2]") == false);
+	BOOST_CHECK(json_db.GetInt(transaction, "$.json_test.sub_object.a") == 10);
+	BOOST_CHECK(json_db.GetString(transaction, "$.json_test.sub_object.b") == "test");
+	BOOST_CHECK(json_db.GetBool(transaction, "$.json_test.sub_object.c") == false);
+	BOOST_CHECK(json_db.GetInt(transaction, "$.json_test.deep_object.a.d") == 30);
+	BOOST_CHECK(json_db.GetString(transaction, "$.json_test.deep_object.a.e") == "40");  
 
 	json_db.Print(transaction, std::cout);
 	std::cout << std::endl;

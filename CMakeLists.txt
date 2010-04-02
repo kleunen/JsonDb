@@ -8,7 +8,7 @@ find_package( Boost COMPONENTS filesystem unit_test_framework system)
 link_directories ( ${Boost_LIBRARY_DIRS} )
 include_directories ( ${Boost_INCLUDE_DIRS} )
 
-add_library(JsonDb JsonDb.cpp JsonDbValues.cpp JsonDbParser.cpp)
+add_library(JsonDb JsonDb.cpp JsonDbValues.cpp JsonDbParser.cpp JsonDbPathParser.cpp)
 add_executable(JsonDb_unit_test main.cpp)
 
 target_link_libraries (

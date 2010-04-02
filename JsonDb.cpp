@@ -20,6 +20,7 @@
 #include "JsonDb.h"
 #include "JsonDbValues.h"
 #include "JsonDbParser.h"
+#include "JsonDbPathParser.h"
 
 #include <boost/format.hpp>
 #include <boost/lexical_cast.hpp>
@@ -243,72 +244,7 @@ void JsonDb::SetJson(TransactionHandle &transaction, std::string const &path, st
 
 std::pair<ValuePointer, ValuePointer> JsonDb::Get(TransactionHandle &transaction, std::string const &path, NotExistsResolution not_exists_resolution)
 {
-	ValuePointer parent = transaction->GetRoot();
-	ValuePointer element = transaction->GetRoot();
-	std::string current_path;
-
-	if(path.empty())
-			throw std::runtime_error((boost::format("Invalid path specified: %s, path should not be empty") % path).str());
-
-	boost::tokenizer< boost::char_separator<char> > tokens(path,  boost::char_separator<char>("."));
-	for(boost::tokenizer< boost::char_separator<char> >::iterator i = tokens.begin(); i != tokens.end(); ++i)
-	{
-		if(i->empty())
-			throw std::runtime_error((boost::format("Invalid path specified: %s") % path).str());
-
-		std::string const &name = *i;
-
-		size_t index_start_pos = name.find('[');
-		if(index_start_pos != std::string::npos)
-		{
-			std::string element_name_str = name.substr(0, index_start_pos);
-
-			parent = element;
-			element = element->Get(transaction, current_path, element_name_str, not_exists_resolution);
-			current_path += (i != tokens.begin() ? "." : "") + element_name_str;
-
-			if(element == NULL)
-				return std::make_pair<ValuePointer, ValuePointer>(parent, element);
-
-			while(true)
-			{
-				size_t index_end_pos = name.find(']', index_start_pos);
-				if(index_end_pos == std::string::npos)
-					throw std::runtime_error((boost::format("Invalid path specified: %s") % path).str());
-				std::string element_index_str = name.substr(index_start_pos + 1, index_end_pos - 1 - index_start_pos);
-
-				size_t index;
-				try 
-				{
-					index = boost::lexical_cast<size_t>(element_index_str);
-				} catch(boost::bad_lexical_cast &e)
-				{
-					throw std::runtime_error((boost::format("Invalid path specified: %s") % path).str());
-				}
-
-				parent = element;
-				element = element->Get(transaction, current_path, index);
-				current_path += "[" + element_index_str + "]";
-
-				index_start_pos = index_end_pos + 1;
-				if(index_start_pos == name.size())
-					break;
-				if(name[index_start_pos] != '[')
-					throw std::runtime_error((boost::format("Invalid path specified: %s") % path).str());
-			}
-
-		} else
-		{
-			parent = element;
-			element = element->Get(transaction, path, name, not_exists_resolution);
-			current_path += (i != tokens.begin() ? "." : "") + name;
-
-			if(element == NULL)
-				return std::make_pair<ValuePointer, ValuePointer>(parent, element);
-		}
-	}
-	
-	return std::make_pair<ValuePointer, ValuePointer>(parent, element);
+	return JsonDb_ParseJsonPathExpression(transaction, path, transaction->GetRoot(), not_exists_resolution);
 }
 
 int JsonDb::GetInt(TransactionHandle &transaction, std::string const &path)

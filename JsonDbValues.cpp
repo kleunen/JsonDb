@@ -109,10 +109,10 @@ void ValueArray::Print(JsonDb::TransactionHandle &transaction, std::ostream &out
 	output << "]";
 }
 
-ValuePointer ValueArray::Get(JsonDb::TransactionHandle &transaction, std::string const &complete_path, size_t index)
+ValuePointer ValueArray::Get(JsonDb::TransactionHandle &transaction, size_t index)
 {
 	if(index >= values.size())
-		throw std::runtime_error((boost::format("Index out of bound: %d, in array: '%s'") % index % complete_path).str());
+		throw std::runtime_error((boost::format("Index out of bound: %d") % index).str());
 
 	return transaction->Retrieve(values[index]);
 }
@@ -173,7 +173,7 @@ void ValueObject::Print(JsonDb::TransactionHandle &transaction, std::ostream &ou
 	output << std::endl << Indent(indent_level - 1) << "}";
 }
 
-ValuePointer ValueObject::Get(JsonDb::TransactionHandle &transaction, std::string const &complete_path, std::string const &path, NotExistsResolution not_exists_resolution)
+ValuePointer ValueObject::Get(JsonDb::TransactionHandle &transaction, std::string const &path, NotExistsResolution not_exists_resolution)
 {
 	ValuePointer element_pointer;
 
@@ -183,7 +183,7 @@ ValuePointer ValueObject::Get(JsonDb::TransactionHandle &transaction, std::strin
 
 	if(not_exists_resolution == throw_exception)
 	{
-		throw std::runtime_error((boost::format("Path could not be found: %s") % complete_path).str());
+		throw std::runtime_error((boost::format("Element not found in object: %s") % path).str());
 	} else if(not_exists_resolution == return_null)
 	{
 		return ValuePointer();

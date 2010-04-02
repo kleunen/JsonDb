@@ -188,7 +188,7 @@ void Semantic_actions::add_to_current(ValuePointer value)
 	} else if(current_value->GetType() == Value::VALUE_OBJECT)
 	{
 		// Set the field
-		ValuePointer old_value = current_value->Get(transaction, name, name, create);
+		ValuePointer old_value = current_value->Get(transaction, name, create);
 		ValueKey key = old_value->GetKey();
 		old_value->Delete(transaction);
 		value->SetKey(key);

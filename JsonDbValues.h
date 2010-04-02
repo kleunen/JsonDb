@@ -93,15 +93,15 @@ public:
 	}	
 
 	// Get entry with the specified path
-	virtual ValuePointer Get(JsonDb::TransactionHandle &transaction, std::string const &complete_path, std::string const &path, NotExistsResolution not_exist_resolution) 
+	virtual ValuePointer Get(JsonDb::TransactionHandle &transaction, std::string const &path, NotExistsResolution not_exist_resolution) 
 	{
-		throw std::runtime_error((boost::format("Failed to get subelement '%s' from object '%s', item is of type '%s'") % path % complete_path % GetTypeString()).str().c_str());
+		throw std::runtime_error((boost::format("Failed to get subelement with name '%s', item is of type '%s'") % path % GetTypeString()).str().c_str());
 	}
 
 	// Get entry with the specified path from element at the specified index
-	virtual ValuePointer Get(JsonDb::TransactionHandle &transaction, std::string const &complete_path, size_t index) 
+	virtual ValuePointer Get(JsonDb::TransactionHandle &transaction, size_t index) 
 	{
-		throw std::runtime_error((boost::format("Failed to get element by index from object '%s', item is of type '%s'") % complete_path % GetTypeString()).str().c_str());
+		throw std::runtime_error((boost::format("Failed to get element by index, item is of type '%s'") % GetTypeString()).str().c_str());
 	}
 
 	// Append an item to a list
@@ -324,7 +324,7 @@ public:
 	void Print(JsonDb::TransactionHandle &transaction, std::ostream &output, unsigned int indent_level) const;
 
 	// Allow path functions
-	ValuePointer Get(JsonDb::TransactionHandle &transaction, std::string const &complete_path, size_t index);
+	ValuePointer Get(JsonDb::TransactionHandle &transaction, size_t index);
 
 	// Append an item to a list
 	void Append(JsonDb::TransactionHandle &transaction, ValueKey key);
@@ -367,7 +367,7 @@ public:
 	void Print(JsonDb::TransactionHandle &transaction, std::ostream &output, unsigned int indent_level) const;
 
 	// Allow path functions
-	ValuePointer Get(JsonDb::TransactionHandle &transaction, std::string const &complete_path, std::string const &path, NotExistsResolution not_exists_resolution);
+	ValuePointer Get(JsonDb::TransactionHandle &transaction, std::string const &path, NotExistsResolution not_exists_resolution);
 
 	// Delete this element and all subelements
 	void Delete(JsonDb::TransactionHandle &transaction);
