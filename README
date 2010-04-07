@@ -13,5 +13,15 @@ make
 To run the unit test, do the following:
 make run_unit_test
 
+It is possible to edit / view the database using a console tool, do the following:
+
+./build/jsondb_console test.db
+
+On the console, try the following for example:
+
+put $.a.b.c.d.string "Hello world"
+put $.a.b.c.d.float 1.0
+put $.a.b.c.d.int 10
+get $
 
 Wouter van Kleunen <wouter.van@kleunen.nl>
