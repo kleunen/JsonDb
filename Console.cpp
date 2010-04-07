@@ -25,12 +25,16 @@
 #include <readline/history.h>
 #include <boost/tokenizer.hpp>
 
+bool quit = false;
+
 /* Read a string, and return a pointer to it.
    Returns NULL on EOF. */
 std::string rl_gets (char const *prompt)
 {
   /* Get a line from the user. */
   char *line_read = readline (prompt);
+	if(line_read == NULL)
+		quit = true;
 
   /* If the line has any text in it,
      save it on the history. */
@@ -73,11 +77,13 @@ int main(int argc, char **argv)
 	std::cout << "Opening database: " << argv[1] << std::endl;
 	JsonDb json_db(argv[1]);
 
-	bool quit = false;
 	while(!quit)
 	{
 		std::string line = rl_gets("> ");
 	
+		if(line.empty())
+			continue;
+
 		try
 		{
 			boost::char_separator<char> separator(" ");

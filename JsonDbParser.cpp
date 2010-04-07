@@ -248,8 +248,7 @@ public:
 			Real_action new_real      ( bind( &Semantic_actions::new_real,     &self.actions, _1 ) );
 			Int_action  new_int       ( bind( &Semantic_actions::new_int,      &self.actions, _1 ) );
 
-			json
-					= ( object | array ) >> end_p
+			json = value >> end_p
 					;
 
 			object
