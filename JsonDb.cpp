@@ -284,6 +284,12 @@ void JsonDb::Delete(TransactionHandle &transaction, std::string const &path)
 	element.first->Delete(transaction, element.second);
 }
 
+void JsonDb::Print(TransactionHandle &transaction, std::string const &path, std::ostream &output)
+{
+	std::pair<ValuePointer, ValuePointer> element = Get(transaction, path, return_null);
+	element.second->Print(transaction, output, 1);
+}
+
 void JsonDb::Print(TransactionHandle &transaction, std::ostream &output)
 {
 	transaction->GetRoot()->Print(transaction, output, 1);

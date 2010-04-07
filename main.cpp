@@ -219,7 +219,7 @@ BOOST_AUTO_TEST_CASE(JsonDbTest)
 		JsonDb_ParserTest(json_db);
 
 		// Delete the complete database
-		json_db.Delete();
+	//	json_db.Delete();
 	} catch(std::runtime_error e)
 	{
 		std::cout << "Internal error while running unit test: " << e.what() << std::endl;

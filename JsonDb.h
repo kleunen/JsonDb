@@ -174,6 +174,7 @@ public:
 	void Delete(TransactionHandle &transaction, std::string const &key);
 
 	// Pretty-print the database to the specified output stream
+	void Print(TransactionHandle &transaction, std::string const &path, std::ostream &output);
 	void Print(TransactionHandle &transaction, std::ostream &output);
 
 	// Start a transaction

@@ -326,6 +326,8 @@ bool JsonDb_ParseJsonExpression(JsonDb::TransactionHandle &transaction, std::str
 {
 	Semantic_actions semantic_actions(transaction, root);
 	parse_info<> info = parse(expression.c_str(), Json_grammer(semantic_actions), space_p);
-	return info.full;
+	if(!info.full)
+		throw std::runtime_error((boost::format("Failed to parse json expression: '%s'") % expression).str().c_str());
+	return true;
 }
 
