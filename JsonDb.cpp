@@ -242,6 +242,16 @@ void JsonDb::SetJson(TransactionHandle &transaction, std::string const &path, st
 	//Set(transaction, path, ValuePointer(new ValueNumberBoolean(null_key, value)), create_if_not_exists);
 }
 
+void JsonDb::AppendArrayJson(TransactionHandle &transaction, std::string const &path, std::string const &value_str)
+{
+	ValuePointer value(new ValueNull(transaction->GenerateKey()));
+
+	std::pair<ValuePointer, ValuePointer> old_value = Get(transaction, path, throw_exception);
+	old_value.second->Append(transaction, value->GetKey());
+
+	JsonDb_ParseJsonExpression(transaction, value_str, value);
+}
+
 std::pair<ValuePointer, ValuePointer> JsonDb::Get(TransactionHandle &transaction, std::string const &path, NotExistsResolution not_exists_resolution)
 {
 	return JsonDb_ParseJsonPathExpression(transaction, path, transaction->GetRoot(), not_exists_resolution);

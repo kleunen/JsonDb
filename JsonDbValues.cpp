@@ -133,6 +133,28 @@ void ValueArray::Delete(JsonDb::TransactionHandle &transaction)
 		transaction->Retrieve(*i)->Delete(transaction);
 }
 
+void ValueArray::Delete(JsonDb::TransactionHandle &transaction, ValuePointer const &element)
+{
+	// Delete all sub elements
+	for(Type::iterator i = values.begin(); i != values.end(); ++i)
+	{
+		if(*i == element->GetKey())
+		{
+			// Delete the element
+			transaction->Retrieve(*i)->Delete(transaction);
+
+			// Remove element from list
+			values.erase(i);
+
+			// Store the current element
+			transaction->Store(GetKey(), shared_from_this());
+
+			// Done
+			return;
+		}
+	}
+}
+
 void ValueArray::Walk(JsonDb::TransactionHandle &transaction, std::set<ValueKey> &keys)
 {
 	keys.insert(GetKey());

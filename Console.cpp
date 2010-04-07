@@ -54,13 +54,19 @@ std::string rl_gets (char const *prompt)
 
 void Help()
 {
-	std::cout << "get <path>           - Print value of the specified path" << std::endl;
-	std::cout << "put <path> <value>   - Set path to the specified json value" << std::endl;
-	std::cout << "quit                 - Exit" << std::endl;
+	std::cout << "Valid commands are:" << std::endl;
+	std::cout << "get <path>            - Print value of the specified path" << std::endl;
+	std::cout << "put <path> <value>    - Set path to the specified json value" << std::endl;
+	std::cout << "delete <path>         - Delete specified value from database" << std::endl;
+	std::cout << "append <path> <value> - Append value to array" << std::endl;
+	std::cout << "quit                  - Exit" << std::endl;
 	std::cout << std::endl;
-	std::cout << "examples: " << std::endl;
+	std::cout << "Examples: " << std::endl;
 	std::cout << "put $.a.b.c.d { 'e':'Hello world', 'f':10 }" << std::endl;
 	std::cout << "get $.a.b.c.d" << std::endl;
+	std::cout << "delete $.a.b.c.d" << std::endl;
+	std::cout << "put $.a.b.c.array [10, 20, 30]" << std::endl;
+	std::cout << "append $.a.b.c.array 40" << std::endl;
 	std::cout << "quit" << std::endl;
 }
 
@@ -101,6 +107,10 @@ int main(int argc, char **argv)
 				JsonDb::TransactionHandle transaction = json_db.StartTransaction();
 				json_db.Print(transaction, tokens[1], std::cout);
 				std::cout << std::endl;
+			} else if(tokens_count == 2 && tokens[0] == "delete")
+			{
+				JsonDb::TransactionHandle transaction = json_db.StartTransaction();
+				json_db.Delete(transaction, tokens[1]);
 			} else if(tokens_count >= 3 && tokens[0] == "put")
 			{
 				std::string value;
@@ -109,12 +119,20 @@ int main(int argc, char **argv)
 
 				JsonDb::TransactionHandle transaction = json_db.StartTransaction();
 				json_db.SetJson(transaction, tokens[1], value);
+			} else if(tokens_count >= 3 && tokens[0] == "append")
+			{
+				std::string value;
+				for(std::vector<std::string>::const_iterator i = tokens.begin() + 2; i != tokens.end(); ++i)
+					value += " " + *i;
+
+				JsonDb::TransactionHandle transaction = json_db.StartTransaction();
+				json_db.AppendArrayJson(transaction, tokens[1], value);
 			} else if(tokens_count == 1 && tokens[0] == "help")
 			{
 				Help();
 			} else
 			{
-				std::cout << "An invalid command was specified" << std::endl;
+				std::cout << "An invalid command was specified" << std::endl << std::endl;
 				Help();
 			}
 		} catch(std::runtime_error &e)

@@ -22,6 +22,33 @@ On the console, try the following for example:
 put $.a.b.c.d.string "Hello world"
 put $.a.b.c.d.float 1.0
 put $.a.b.c.d.int 10
+put $.a.b.c.d.array [10, 20, 30]
+append $.a.b.c.d.array { "a" : "Hello", "b" : "World", c: 10 }
 get $
+
+Result:
+
+{
+  "a" =
+  {
+    "b" =
+    {
+      "c" =
+      {
+        "d" =
+        {
+          "array" = [10,20,30,
+          {
+            "a" = "Hello",
+            "b" = "World"
+          }],
+          "float" = 1.0,
+          "int" = 10,
+          "string" = "Hello world"
+        }
+      }
+    }
+  }
+}
 
 Wouter van Kleunen <wouter.van@kleunen.nl>

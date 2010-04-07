@@ -103,24 +103,36 @@ void JsonDb_CreateDatabase(JsonDb &json_db)
 	json_db.AppendArray(transaction, "$.this.is.a.deep.test.path.append_array", false);
 	json_db.AppendArray(transaction, "$.this.is.a.deep.test.path.append_array", "test");
 	json_db.AppendArray(transaction, "$.this.is.a.deep.test.path.append_array", 1.0f);
+	json_db.AppendArrayJson(transaction, "$.this.is.a.deep.test.path.append_array", "{ 'a': 'test', 'b': 10 }" );
 
 	// Check if items are appended
 	BOOST_CHECK(json_db.GetInt(transaction, "$.this.is.a.deep.test.path.append_array[0]") == 100);
 	BOOST_CHECK(json_db.GetBool(transaction, "$.this.is.a.deep.test.path.append_array[1]") == false);
 	BOOST_CHECK(json_db.GetString(transaction, "$.this.is.a.deep.test.path.append_array[2]") == "test");
 	BOOST_CHECK(json_db.GetReal(transaction, "$.this.is.a.deep.test.path.append_array[3]") == 1.0f); 
+	BOOST_CHECK(json_db.GetString(transaction, "$.this.is.a.deep.test.path.append_array[4].a") == "test"); 
+	BOOST_CHECK(json_db.GetInt(transaction, "$.this.is.a.deep.test.path.append_array[4].b") == 10); 
+
+	json_db.SetJson(transaction, "$.this.is.a.deep.test.path.append_array[3]", "2.0");
+	BOOST_CHECK(json_db.GetReal(transaction, "$['this']['is']['a'].deep.test.path.append_array[3]") == 2.0f); 
 
 	// Test some different path access syntax
 	BOOST_CHECK(json_db.GetInt(transaction, "$['this'].is.a.deep.test.path.append_array[0]") == 100);
 	BOOST_CHECK(json_db.GetBool(transaction, "$['this'].is.a.deep.test.path.append_array[1]") == false);
 	BOOST_CHECK(json_db.GetString(transaction, "$['this']['is'].a.deep.test.path.append_array[2]") == "test");
-	BOOST_CHECK(json_db.GetReal(transaction, "$['this']['is']['a'].deep.test.path.append_array[3]") == 1.0f); 
+	BOOST_CHECK(json_db.GetReal(transaction, "$['this']['is']['a'].deep.test.path.append_array[3]") == 2.0f); 
 
 	// Test delete
 	json_db.Set(transaction, "$.this.is.a.deep.test.path.delete_value", 1);
 	BOOST_CHECK(json_db.Exists(transaction, "$.this.is.a.deep.test.path.delete_value") == true);
 	json_db.Delete(transaction, "$.this.is.a.deep.test.path.delete_value");
 	BOOST_CHECK(json_db.Exists(transaction, "$.this.is.a.deep.test.path.delete_value") == false);
+
+	json_db.SetJson(transaction, "$.this.is.a.deep.test.path.delete_array", "[ 10, 20, 30 ]");
+	json_db.Delete(transaction, "$.this.is.a.deep.test.path.delete_array[1]");
+	BOOST_CHECK(json_db.GetInt(transaction, "$.this.is.a.deep.test.path.delete_array[0]") == 10);
+	BOOST_CHECK(json_db.GetInt(transaction, "$.this.is.a.deep.test.path.delete_array[1]") == 30);
+	BOOST_CHECK_THROW(json_db.GetInt(transaction, "$.this.is.a.deep.test.path.delete_array[2]"), std::runtime_error);
 
 	// Validate the integrity of the database
 	BOOST_CHECK(json_db.Validate(transaction) == true);
@@ -151,8 +163,13 @@ void JsonDb_ValidateDatabase(JsonDb &json_db)
 	BOOST_CHECK(json_db.GetInt(transaction, "$.this.is.a.deep.test.path.append_array[0]") == 100);
 	BOOST_CHECK(json_db.GetBool(transaction, "$.this.is.a.deep.test.path.append_array[1]") == false);
 	BOOST_CHECK(json_db.GetString(transaction, "$.this.is.a.deep.test.path.append_array[2]") == "test");
-	BOOST_CHECK(json_db.GetReal(transaction, "$.this.is.a.deep.test.path.append_array[3]") == 1.0f); 
+	BOOST_CHECK(json_db.GetReal(transaction, "$.this.is.a.deep.test.path.append_array[3]") == 2.0f); 
+	BOOST_CHECK(json_db.GetString(transaction, "$.this.is.a.deep.test.path.append_array[4].a") == "test"); 
+	BOOST_CHECK(json_db.GetInt(transaction, "$.this.is.a.deep.test.path.append_array[4].b") == 10); 
 
+	BOOST_CHECK(json_db.GetInt(transaction, "$.this.is.a.deep.test.path.delete_array[0]") == 10);
+	BOOST_CHECK(json_db.GetInt(transaction, "$.this.is.a.deep.test.path.delete_array[1]") == 30);
+	BOOST_CHECK_THROW(json_db.GetInt(transaction, "$.this.is.a.deep.test.path.delete_array[2]"), std::runtime_error);
 	json_db.Print(transaction, std::cout);
 	std::cout << std::endl;
 }

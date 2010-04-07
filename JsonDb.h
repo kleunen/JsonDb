@@ -160,6 +160,7 @@ public:
 	}
 	void AppendArray(TransactionHandle &transaction, std::string const &path, bool value);
 	void AppendArray(TransactionHandle &transaction, std::string const &path, double value);
+	void AppendArrayJson(TransactionHandle &transaction, std::string const &path, std::string const &value);
 
 	// Read values from the database
 	std::string GetString(TransactionHandle &transaction, std::string const &path);

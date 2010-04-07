@@ -128,7 +128,7 @@ public:
 	// Delete subelement element
 	virtual void Delete(JsonDb::TransactionHandle &transaction, ValuePointer const &element)
 	{
-		throw std::runtime_error((boost::format("Failed to delement subelement from object, item is of type '%s'") % GetTypeString()).str().c_str());
+		throw std::runtime_error((boost::format("Failed to delete subelement from object, item is of type '%s'") % GetTypeString()).str().c_str());
 	}
 
 	// Unserialize from a stream
@@ -331,6 +331,9 @@ public:
 
 	// Delete this element and all subelements
 	void Delete(JsonDb::TransactionHandle &transaction);
+
+	// Delete subelement
+	void Delete(JsonDb::TransactionHandle &transaction, ValuePointer const &element);
 
 	char const *GetTypeString() const
 	{
